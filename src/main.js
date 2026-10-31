@@ -77,17 +77,18 @@ const app = document.querySelector("#app");
 function shell() {
   app.innerHTML = `<aside class="sidebar">
     <a class="brand" href="#workspace" aria-label="禾镜首页"><img src="./favicon.svg" alt=""/><span>禾镜 <b>FieldLens</b></span></a>
-    <div class="nav-caption">检测管理</div>
     <nav aria-label="主导航">
+      <div class="nav-caption">检测管理</div>
       <button data-view="workspace">${icon("scan")}<span>图像检测</span></button>
       <button data-view="history">${icon("history")}<span>检测记录</span></button>
+      <div class="nav-caption">使用帮助</div>
       <button data-view="guide">${icon("target")}<span>运行指南</span></button>
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
     <div class="sidebar-footer">FieldLens <span>v1.1</span></div>
   </aside>
-  <div class="main-shell"><header class="topbar"><div>作物病害检测 <span>/</span> <strong id="breadcrumb">图像检测</strong></div><span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
+  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
   app.querySelectorAll("[data-view]").forEach(
     (button) =>
@@ -111,6 +112,12 @@ function render() {
     about: "项目说明",
     guide: "运行指南",
   }[state.view];
+  document.querySelector("#breadcrumb-group").textContent = [
+    "workspace",
+    "history",
+  ].includes(state.view)
+    ? "检测管理"
+    : "使用帮助";
   const main = document.querySelector("#main");
   if (state.view === "workspace") renderWorkspace(main);
   else if (state.view === "history") renderHistory(main);
