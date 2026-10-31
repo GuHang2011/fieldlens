@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="680" viewBox="0 0 1000 680">
+  <defs>
+    <radialGradient id="bg"><stop stop-color="#58684a"/><stop offset="1" stop-color="#172e24"/></radialGradient>
+    <linearGradient id="leaf" x2="1" y2="1"><stop stop-color="#b6c77b"/><stop offset=".45" stop-color="#708d46"/><stop offset="1" stop-color="#305438"/></linearGradient>
+    <linearGradient id="young" x2="1" y2="1"><stop stop-color="#d0cc7f"/><stop offset="1" stop-color="#6b914b"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="6" dy="18" stdDeviation="16" flood-opacity=".35"/></filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#dce6bb" stroke-opacity=".035"/></pattern>
+    <g id="veins" fill="none" stroke="#cedb99" stroke-linecap="round"><path d="M0 175V-140" stroke-width="3"/><path d="M0 110-65 45M0 70 77-5M0 28-72-35M0-15 60-73M0-55-42-98M0-90 25-120" stroke-width="1.5" opacity=".5"/></g>
+    <g id="spot"><path d="M-15-3Q-12-21 3-16T18 2Q13 19-4 13T-15-3" fill="#bca55e" opacity=".85"/><path d="M-9-3Q-8-12 3-9T10 3Q5 12-4 7Z" fill="#6c4b30"/><circle r="3" fill="#423d29"/></g>
+  </defs>
+  <rect width="1000" height="680" fill="url(#bg)"/>
+  <rect width="1000" height="680" fill="url(#grid)"/>
+  <g opacity=".13" fill="#b9c99c"><ellipse cx="40" cy="490" rx="160" ry="65" transform="rotate(-30 40 490)"/><ellipse cx="920" cy="100" rx="210" ry="80" transform="rotate(30 920 100)"/></g>
+  <path d="M510 710Q525 500 475 380T600 110M510 555 685 415M490 445 310 270" fill="none" stroke="#658350" stroke-width="13"/>
+  <path d="M510 710Q525 500 475 380T600 110" fill="none" stroke="#a4b37c" stroke-width="3" opacity=".6"/>
+  <g transform="translate(322 255) rotate(-36)" filter="url(#shadow)">
+    <path d="M0 177C-32 130-116 95-116 4Q-108-100 0-166Q114-92 118 2C118 93 31 133 0 177Z" fill="url(#leaf)"/>
+    <use href="#veins"/>
+    <g><use href="#spot" x="-39" y="-28"/><use href="#spot" x="44" y="32" transform="rotate(20)"/><use href="#spot" x="15" y="-80" transform="scale(.7)"/><use href="#spot" x="-34" y="64" transform="scale(.6)"/></g>
+  </g>
+  <g transform="translate(626 158) rotate(30) scale(.63)" filter="url(#shadow)">
+    <path d="M0 177C-40 122-110 90-110 0Q-100-106 0-166Q113-88 115 0C112 95 36 135 0 177Z" fill="url(#young)"/><use href="#veins"/>
+  </g>
+  <g transform="translate(701 402) rotate(43) scale(.92)" filter="url(#shadow)">
+    <path d="M0 177C-32 130-116 95-116 4Q-108-100 0-166Q114-92 118 2C118 93 31 133 0 177Z" fill="url(#leaf)"/><use href="#veins"/>
+    <use href="#spot" x="35" y="-30"/><use href="#spot" x="-37" y="20"/><use href="#spot" x="-15" y="-90" transform="scale(.6)"/>
+  </g>
+  <g fill="#e2e9c5" font-family="monospace" font-size="11" letter-spacing="3" opacity=".65"><text x="32" y="640">FIELDLENS / BOTANICAL STUDY 001</text><text x="768" y="640">SYNTHETIC SPECIMEN</text></g>
+</svg>
