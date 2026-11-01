@@ -91,13 +91,17 @@ export function renderHistoryPage(main, { getRecords, persist, toast }) {
     openerId = id;
     dialog.innerHTML = `<div class="panel-heading"><h2 id="record-dialog-title">记录详情</h2><button class="text-button" id="close-detail" aria-label="关闭记录详情">关闭</button></div><div class="dialog-body"><h3>${esc(r.name)}</h3><p class="detail-meta">${esc(when(r.date))} · ${source(r)} · 阈值 ${Math.round(r.threshold * 100)}%</p><p class="demo-note">${r.mode === "demo" ? "本记录使用预设演示标注，并非模型推理。" : "模型输出仅供筛查参考，需结合实际复核。"}${r.width ? ` 图片尺寸：${r.width} × ${r.height}。` : ""} 原图片未保存。</p><div class="table-scroll"><table><thead><tr><th>类别</th><th>置信度</th><th>归一化坐标</th></tr></thead><tbody>${r.detections.map((d) => `<tr><td>${esc(d.label)}</td><td>${(d.confidence * 100).toFixed(1)}%</td><td>${d.box.map((v) => v.toFixed(3)).join(", ")}</td></tr>`).join("") || '<tr><td colspan="3">该阈值下没有检测区域。</td></tr>'}</tbody></table></div><label class="dialog-label" for="record-notes">复核备注</label><textarea id="record-notes" maxlength="1000" rows="3" placeholder="例如采集地点、需要再次核查的区域">${esc(r.notes)}</textarea><label class="review-check"><input type="checkbox" id="record-reviewed" ${r.reviewed ? "checked" : ""}/> 已人工查看此记录</label></div><div class="results-footer"><button class="button outlined" id="detail-export">导出 JSON</button><button class="button primary" id="save-review">保存复核信息</button></div>`;
     dialog.querySelector("#close-detail").onclick = () => dialog.close();
-    dialog.querySelector("#detail-export").onclick = () => downloadJSON(r);
+    const currentDraft = () => ({
+      ...r,
+      notes: dialog.querySelector("#record-notes").value.trim(),
+      reviewed: dialog.querySelector("#record-reviewed").checked,
+    });
+    dialog.querySelector("#detail-export").onclick = () => {
+      downloadJSON(currentDraft());
+      toast("已导出当前填写内容；保存复核信息后才会更新本地记录");
+    };
     dialog.querySelector("#save-review").onclick = () => {
-      const updated = {
-        ...r,
-        notes: dialog.querySelector("#record-notes").value.trim(),
-        reviewed: dialog.querySelector("#record-reviewed").checked,
-      };
+      const updated = currentDraft();
       if (
         persist(
           getRecords().map((record) => (record.id === id ? updated : record)),

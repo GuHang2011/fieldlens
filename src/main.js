@@ -286,6 +286,7 @@ function serviceLabel() {
 
 function renderResults() {
   if (state.view !== "workspace") return;
+  const focusedResult = document.activeElement?.dataset.result;
   const items = visibleDetections(state.detections, state.threshold);
   document.querySelector("#result-count").textContent = state.completed
     ? `${items.length} 个区域`
@@ -301,7 +302,7 @@ function renderResults() {
           })
           .join("");
   document.querySelector("#results-body").innerHTML = items.length
-    ? `<div class="result-table-heading"><span>序号</span><span>类别</span><span>置信度</span></div><div class="result-list">${items.map((item, i) => `<button class="result-row ${state.selected === i ? "selected" : ""}" data-result="${i}"><span class="result-number">${i + 1}</span><span class="result-label">${escape(item.label)}</span><strong>${(item.confidence * 100).toFixed(1)}%</strong></button>`).join("")}</div><p class="result-help">点击结果行可高亮对应区域。</p>`
+    ? `<div class="result-table-heading"><span>序号</span><span>类别</span><span>置信度</span></div><div class="result-list">${items.map((item, i) => `<button class="result-row ${state.selected === i ? "selected" : ""}" data-result="${i}" aria-pressed="${state.selected === i}"><span class="result-number">${i + 1}</span><span class="result-label">${escape(item.label)}</span><strong>${(item.confidence * 100).toFixed(1)}%</strong></button>`).join("")}</div><p class="result-help">点击结果行可高亮对应区域。</p>`
     : `<div class="empty-results">${icon("scan")}<strong>${state.completed ? "当前阈值下未检出区域" : "暂无检测结果"}</strong><p>${state.completed ? "未检出不代表健康，请结合实际复核。" : "上传图片后开始检测，或加载示例。"}</p></div>`;
   document.querySelectorAll("[data-result]").forEach(
     (button) =>
@@ -310,6 +311,11 @@ function renderResults() {
         renderResults();
       }),
   );
+  if (focusedResult !== undefined) {
+    [...document.querySelectorAll("[data-result]")]
+      .find((button) => button.dataset.result === focusedResult)
+      ?.focus({ preventScroll: true });
+  }
   document.querySelector("#export").disabled = !state.completed || state.busy;
   const saved = state.resultId
     ? state.history.find((r) => r.id === currentRecord().id)
@@ -437,7 +443,7 @@ async function acceptFile(file) {
   } finally {
     if (token === selectionToken) {
       state.loading = false;
-      render();
+      if (state.view === "workspace") render();
     }
   }
 }
@@ -546,19 +552,21 @@ async function detect() {
   } finally {
     state.busy = false;
     activeRequest = null;
-    render();
+    if (state.view === "workspace") render();
   }
 }
 
 function currentRecord() {
+  const id = `${state.resultId}-${Math.round(state.threshold * 100)}`;
+  const saved = state.history.find((record) => record.id === id);
   return {
-    id: `${state.resultId}-${Math.round(state.threshold * 100)}`,
+    id,
     name: state.name,
     date: state.resultAt,
     width: state.width,
     height: state.height,
     notes: state.notes.trim(),
-    reviewed: false,
+    reviewed: saved?.reviewed ?? false,
     model: state.mode === "model" ? state.model : "",
     mode: state.mode,
     threshold: state.threshold,
@@ -568,6 +576,13 @@ function currentRecord() {
 function persistRecords(records) {
   try {
     localStorage.setItem("fieldlens.history", JSON.stringify(records));
+    const id = `${state.resultId}-${Math.round(state.threshold * 100)}`;
+    const previous = state.history.find((record) => record.id === id);
+    const updated = records.find((record) => record.id === id);
+    // Synchronize saved review edits without discarding a separate workspace draft.
+    if (previous && updated && state.notes.trim() === previous.notes) {
+      state.notes = updated.notes;
+    }
     state.history = records;
     return true;
   } catch {
