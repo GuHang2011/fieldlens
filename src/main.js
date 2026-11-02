@@ -1,5 +1,7 @@
 import "./admin.css";
 import "./features.css";
+import "./practical.css";
+import { newSample, sampleFields, readSample } from "./record-fields.js";
 import { renderHistoryPage } from "./history-view.js";
 import {
   downloadJSON,
@@ -11,6 +13,9 @@ import {
   visibleDetections,
   validateResult,
   loadHistory,
+  normalizeSample,
+  matchesTask,
+  HISTORY_LIMIT,
 } from "./domain.js";
 
 const icons = {
@@ -65,6 +70,7 @@ const state = {
   width: null,
   height: null,
   notes: "",
+  sample: newSample(),
   resultId: "",
   resultAt: "",
   elapsedMs: null,
@@ -86,7 +92,7 @@ function shell() {
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
-    <div class="sidebar-footer">FieldLens <span>v1.1</span></div>
+    <div class="sidebar-footer">FieldLens <span>v1.2</span></div>
   </aside>
   <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
@@ -141,18 +147,38 @@ function primaryAction() {
 }
 
 function renderWorkspace(main) {
+  const pending = state.history.filter((r) =>
+    matchesTask(r.followUp, "pending"),
+  ).length;
+  const due = state.history.filter(
+    (r) =>
+      matchesTask(r.followUp, "today") || matchesTask(r.followUp, "overdue"),
+  ).length;
   const action = primaryAction();
   main.innerHTML = `<section class="page-heading"><div><h1>图像检测</h1><p>上传作物图片，设置检测参数并查看结果。</p></div><button class="button outlined" id="sample-top" ${state.busy ? "disabled" : ""}>加载示例</button></section>
   ${!apiEnabled ? `<div class="capability-banner"><div><strong>在线演示</strong><span>可体验示例、预览图片、整理记录和导出报告。自己的图片需要在本地连接 YOLO 模型后检测。</span></div><a class="button outlined" href="#guide">本地运行指南</a></div>` : ""}
+  <div class="workspace-task-summary"><span>待复查 <strong>${pending}</strong> 条 · 今日及逾期 <strong>${due}</strong> 条</span><a class="text-button" href="#history?task=pending">查看复查待办</a></div>
   <div class="workspace-grid"><section class="panel image-panel"><div class="panel-heading"><div><h2>检测图片</h2>${state.image ? `<span class="badge">${state.mode === "demo" ? "演示图片" : "已上传"}</span>` : ""}</div><label class="box-switch"><input type="checkbox" id="show-boxes" ${state.boxes ? "checked" : ""}/> 显示检测框</label></div>
   <div class="image-stage ${state.image ? "has-image" : "is-empty"}" id="dropzone">${state.image ? `<div class="image-wrap"><img id="specimen" src="${escape(state.image)}" alt="${escape(state.name)}"/><svg id="box-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="检测区域标注"></svg></div><div class="image-corner">${state.mode === "demo" ? "演示图片 · 预设标注" : "图片预览"}</div>` : `<button class="empty-upload" id="empty-upload" ${state.busy ? "disabled" : ""}>${icon("upload")}<strong>将图片拖到此处，或<span>点击上传</span></strong><span class="upload-hint">支持 JPG、PNG、WebP，单张不超过 10 MB</span></button>`}<div class="scan-line" ${state.busy ? "" : "hidden"}></div></div>
   ${state.image ? `<div class="viewer-controls" aria-label="图片查看工具"><button class="button outlined" id="zoom-out" aria-label="缩小图片" ${state.zoom <= 0.5 ? "disabled" : ""}>−</button><output id="zoom-value">${Math.round(state.zoom * 100)}%</output><button class="button outlined" id="zoom-in" aria-label="放大图片" ${state.zoom >= 3 ? "disabled" : ""}>+</button><button class="text-button" id="zoom-fit">适应窗口</button><span>${state.width || "—"} × ${state.height || "—"} 像素</span><button class="text-button danger" id="reset-image" ${state.busy ? "disabled" : ""}>清除图片</button></div>` : ""}
   <div class="image-toolbar"><span id="file-name" title="${escape(state.name)}">${escape(state.name || "未选择图片")}</span><button class="button outlined" id="upload" ${state.busy ? "disabled" : ""}>${icon("upload")} ${state.image ? "更换图片" : "选择图片"}</button><input id="file-input" type="file" accept="image/jpeg,image/png,image/webp" hidden/></div>
+  <details class="sample-details"><summary>样本信息 <span>编号、地块、批次与采集时间</span></summary>${sampleFields(state.sample, "workspace", state.history)}</details>
   <div class="demo-note">${icon("info")}<span>${state.mode === "demo" ? "示例标注为预设数据，不代表模型识别结果。" : apiEnabled ? "图片在点击检测后发送至本地服务。" : "在线版支持预览图片和查看示例；真实检测请在本地运行。"}</span></div></section>
   <aside class="inspector"><section class="panel settings"><div class="panel-heading"><h2>检测参数</h2></div><div class="settings-body"><label class="field-label" for="mode">检测方式</label><select id="mode" ${state.busy ? "disabled" : ""}><option value="demo" ${state.mode === "demo" ? "selected" : ""}>示例演示</option><option value="model" ${state.mode === "model" ? "selected" : ""}>YOLO 模型检测</option></select><div class="connection ${state.status === "ready" ? "connected" : ""}"><span class="status-dot"></span><span>${serviceLabel()}</span><button id="refresh-status" ${!apiEnabled || state.busy ? "hidden" : ""} aria-label="重新检查服务" title="重新检查服务">↻</button></div>
   <div class="range-heading"><label for="threshold">置信度阈值</label><output id="threshold-output">${Math.round(state.threshold * 100)}%</output></div><input id="threshold" type="range" min="10" max="99" value="${Math.round(state.threshold * 100)}" ${state.busy ? "disabled" : ""}/><div class="range-labels"><span>10%</span><span>99%</span></div><p class="field-help">低于阈值的结果不显示。模型检测调整参数后需重新运行。</p><button class="button primary" id="detect" ${action.disabled ? "disabled" : ""}>${icon("scan")} ${action.label}</button>${state.busy ? '<button class="text-button" id="cancel-detection">取消等待</button>' : state.mode === "model" && state.status !== "ready" ? '<a class="setup-link" href="#guide">查看环境配置与模型接入步骤</a>' : ""}<p class="error" id="error" role="alert" ${state.error ? "" : "hidden"}>${escape(state.error)}</p></div></section>
   <section class="panel results"><div class="panel-heading"><h2>检测结果</h2><span class="badge" id="result-count"></span></div><div id="results-summary" class="results-summary" hidden></div><div id="results-body"></div><div class="record-draft"><label for="inspection-note">记录备注（可选）</label><textarea id="inspection-note" maxlength="1000" rows="2" placeholder="采集地点、样本编号或待复核事项">${escape(state.notes)}</textarea></div><div class="results-footer export-options"><button id="export-image" class="button outlined">导出标注图</button><button id="export-csv" class="button outlined">CSV</button><button id="export" class="button outlined">${icon("download")} 导出 JSON</button><button id="save" class="button primary">保存记录</button></div></section></aside></div>
   <p class="workspace-note">检测结果仅供参考，请结合实际情况复核。</p>`;
+  main.querySelectorAll("[data-sample]").forEach(
+    (input) =>
+      (input.oninput = () => {
+        try {
+          state.sample = readSample(main, state.sample);
+          renderResults();
+        } catch (error) {
+          toast(error.message);
+        }
+      }),
+  );
   document.querySelector("#sample-top").onclick = useSample;
   document.querySelector("#upload").onclick = () =>
     document.querySelector("#file-input").click();
@@ -321,13 +347,11 @@ function renderResults() {
     ? state.history.find((r) => r.id === currentRecord().id)
     : null;
   document.querySelector("#save").disabled =
-    !state.completed ||
-    state.busy ||
-    !!(saved && saved.notes === state.notes.trim());
+    !state.completed || state.busy || !!(saved && sameWorkspaceFields(saved));
   document.querySelector("#save").textContent = saved
-    ? saved.notes === state.notes.trim()
+    ? sameWorkspaceFields(saved)
       ? "已保存"
-      : "更新备注"
+      : "更新记录"
     : "保存记录";
   document.querySelector("#export-csv").disabled =
     !state.completed || state.busy;
@@ -357,6 +381,7 @@ function useSample() {
     width: 1000,
     height: 680,
     notes: "",
+    sample: newSample(),
     elapsedMs: null,
     resultId: crypto.randomUUID(),
     resultAt: new Date().toISOString(),
@@ -382,6 +407,7 @@ function clearImage() {
     width: null,
     height: null,
     notes: "",
+    sample: newSample(),
     detections: [],
     completed: false,
     loading: false,
@@ -428,6 +454,7 @@ async function acceptFile(file) {
       width: probe.naturalWidth,
       height: probe.naturalHeight,
       notes: "",
+      sample: newSample(),
       resultId: "",
       resultAt: "",
       elapsedMs: null,
@@ -566,6 +593,8 @@ function currentRecord() {
     width: state.width,
     height: state.height,
     notes: state.notes.trim(),
+    sample: normalizeSample(state.sample),
+    followUp: saved?.followUp ?? null,
     reviewed: saved?.reviewed ?? false,
     model: state.mode === "model" ? state.model : "",
     mode: state.mode,
@@ -573,7 +602,18 @@ function currentRecord() {
     detections: visibleDetections(state.detections, state.threshold),
   };
 }
+function sameWorkspaceFields(record) {
+  return (
+    record.notes === state.notes.trim() &&
+    JSON.stringify(normalizeSample(record.sample)) ===
+      JSON.stringify(normalizeSample(state.sample))
+  );
+}
 function persistRecords(records) {
+  if (records.length > HISTORY_LIMIT) {
+    toast("最多保存 30 条，请先导出备份并整理旧记录。当前结果仍可导出。");
+    return false;
+  }
   try {
     localStorage.setItem("fieldlens.history", JSON.stringify(records));
     const id = `${state.resultId}-${Math.round(state.threshold * 100)}`;
@@ -583,6 +623,13 @@ function persistRecords(records) {
     if (previous && updated && state.notes.trim() === previous.notes) {
       state.notes = updated.notes;
     }
+    if (
+      previous &&
+      updated &&
+      JSON.stringify(normalizeSample(state.sample)) ===
+        JSON.stringify(normalizeSample(previous.sample))
+    )
+      state.sample = normalizeSample(updated.sample);
     state.history = records;
     return true;
   } catch {
@@ -595,24 +642,14 @@ function saveRecord() {
   if (!state.completed || state.busy) return;
   const current = currentRecord();
   const previous = state.history.find((r) => r.id === current.id);
-  if (previous && previous.notes === current.notes)
+  if (previous && sameWorkspaceFields(previous))
     return toast("这次检测已经保存");
   const record = previous
     ? { ...current, reviewed: previous.reviewed }
     : current;
-  const next = [
-    record,
-    ...state.history.filter((r) => r.id !== record.id),
-  ].slice(0, 30);
-  const full = !previous && state.history.length >= 30;
+  const next = [record, ...state.history.filter((r) => r.id !== record.id)];
   if (persistRecords(next)) {
-    toast(
-      previous
-        ? "记录备注已更新"
-        : full
-          ? "已保存，已替换最早的一条记录（最多 30 条）"
-          : "已保存到检测记录",
-    );
+    toast(previous ? "记录已更新" : "已保存到检测记录");
     renderResults();
   }
 }
@@ -624,6 +661,9 @@ function renderHistory(main) {
     getRecords: () => state.history,
     persist: persistRecords,
     toast,
+    initialTask:
+      new URLSearchParams(location.hash.split("?")[1] || "").get("task") ||
+      "all",
   });
 }
 
@@ -638,7 +678,7 @@ $env:FIELDLENS_MODEL = 'D:\models\crop-detect.pt'
 
 function renderAbout(main) {
   main.innerHTML = `<section class="page-heading"><div><h1>项目说明</h1><p>功能说明、运行方式与开源许可。</p></div></section>
-  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.1</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测框、置信度筛选、标注图与 CSV 导出、记录检索和人工复核。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，使用蓝色主操作、标准表单与结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，支持搜索、筛选、复核备注和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。暂不包含视频、摄像头、账户管理和病害防治建议。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
+  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.2</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测框、置信度筛选、标注图与 CSV 导出、记录检索和人工复核。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，使用蓝色主操作、标准表单与结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。暂不包含视频、摄像头、账户管理和病害防治建议。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
 }
 
 let toastTimer;
@@ -651,16 +691,43 @@ function toast(message) {
     el.hidden = true;
   }, 4500);
 }
+let previousRoute = location.hash;
 function route() {
+  const editor = document.querySelector("#record-dialog");
+  if (
+    editor?.open &&
+    editor.dataset.dirty === "true" &&
+    !confirm("有未保存的修改，确定离开吗？")
+  ) {
+    history.replaceState(
+      null,
+      "",
+      location.pathname + location.search + previousRoute,
+    );
+    return;
+  }
+  previousRoute = location.hash;
   state.view = ["workspace", "history", "about", "guide"].includes(
-    location.hash.slice(1),
+    location.hash.slice(1).split("?")[0],
   )
-    ? location.hash.slice(1)
+    ? location.hash.slice(1).split("?")[0]
     : "workspace";
   if (document.querySelector("#main")) render();
 }
 window.addEventListener("hashchange", route);
 window.addEventListener("resize", fitImage);
+window.addEventListener("beforeunload", (event) => {
+  const editor = document.querySelector("#record-dialog");
+  if (editor?.open && editor.dataset.dirty === "true") {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+setInterval(() => {
+  const summary = document.querySelector(".workspace-task-summary > span");
+  if (summary)
+    summary.textContent = `待复查 ${state.history.filter((r) => matchesTask(r.followUp, "pending")).length} 条 · 今日及逾期 ${state.history.filter((r) => matchesTask(r.followUp, "today") || matchesTask(r.followUp, "overdue")).length} 条`;
+}, 30000);
 route();
 shell();
 checkService();

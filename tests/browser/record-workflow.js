@@ -28,6 +28,7 @@ async(page)=>{
   checks.push({issue:'detail_export_current_fields',pass:detailReport.notes==='本次导出草稿'&&detailReport.reviewed===false});
   const persisted=await page.evaluate(()=>JSON.parse(localStorage.getItem('fieldlens.history'))[0]);
   if(persisted.notes!=='复核后备注'||!persisted.reviewed)throw Error('Export must not implicitly persist draft edits');
+  await page.evaluate(()=>{window.confirm=()=>true});
   await page.locator('#close-detail').click();
   await page.getByRole('button',{name:'图像检测',exact:true}).click();
   await page.locator('#inspection-note').fill('单独保留的工作台草稿');
