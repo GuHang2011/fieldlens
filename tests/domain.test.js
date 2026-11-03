@@ -119,6 +119,6 @@ test("export provenance cannot be overwritten by imported metadata", () => {
     record({ application: "Other", version: "fake", notice: "real inference" }),
   );
   assert.equal(report.application, "禾镜 FieldLens");
-  assert.equal(report.version, "1.3.0");
+  assert.equal(report.version, "1.3.1");
   assert.match(report.notice, /并非模型推理/);
 });

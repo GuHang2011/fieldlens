@@ -18,11 +18,11 @@ export function regionDiagram(record) {
 
 export function regionEditor(record) {
   const keys = regionKeys(record.detections);
-  return `<section class="region-review"><h3>逐区域复核</h3><p class="field-help">原始类别、置信度和坐标保留。人工“保留”仅表示认可该检测区域，不代表确诊。</p>${regionDiagram(record)}<div class="table-scroll"><table><thead><tr><th>区域 / 类别</th><th>置信度 / 坐标</th><th>人工意见</th></tr></thead><tbody>${
+  return `<section class="region-review"><h3>逐区域复核</h3><p class="field-help">原始类别、置信度和坐标保留。人工“保留”仅表示认可该检测区域，不代表确诊。</p><div class="region-layout">${regionDiagram(record)}<div class="table-scroll"><table><thead><tr><th>区域 / 类别</th><th>置信度 / 坐标</th><th>人工意见</th></tr></thead><tbody>${
     record.detections
       .map((d, i) => {
         const review = record.regionReviews?.find((r) => r.key === keys[i]);
-        return `<tr><td>#${i + 1} ${esc(d.label)}</td><td>${(d.confidence * 100).toFixed(1)}%<small class="record-note">${d.box.map((v) => v.toFixed(3)).join(", ")}</small></td><td><select data-region-status="${i}" aria-label="区域 ${i + 1} 复核状态">${Object.entries(
+        return `<tr><td data-label="区域 / 类别">#${i + 1} ${esc(d.label)}</td><td data-label="置信度 / 坐标">${(d.confidence * 100).toFixed(1)}%<small class="record-note">${d.box.map((v) => v.toFixed(3)).join(", ")}</small></td><td data-label="人工意见"><select data-region-status="${i}" aria-label="区域 ${i + 1} 复核状态">${Object.entries(
           REVIEW_LABELS,
         )
           .map(
@@ -35,7 +35,7 @@ export function regionEditor(record) {
       })
       .join("") ||
     '<tr><td colspan="3">该阈值下没有检测区域，可在下方填写整图复核备注或安排补拍。</td></tr>'
-  }</tbody></table></div></section>`;
+  }</tbody></table></div></div></section>`;
 }
 
 export function readRegionReviews(root, record) {

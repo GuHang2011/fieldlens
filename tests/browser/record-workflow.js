@@ -13,6 +13,7 @@ async(page)=>{
   await page.locator('#inspection-note').fill('原始备注');await page.locator('#save').click();
   await page.getByRole('button',{name:'检测记录',exact:true}).click();
   await page.getByRole('button',{name:'详情',exact:true}).click();
+  await page.locator('[data-detail-tab="review"]').click();
   await page.locator('#record-notes').fill('复核后备注');await page.locator('#record-reviewed').check();
   await page.locator('#save-review').click();
   await page.getByRole('button',{name:'图像检测',exact:true}).click();
@@ -22,6 +23,7 @@ async(page)=>{
   checks.push({issue:'workspace_export_review_status',pass:workspaceReport.reviewed===true&&workspaceReport.notes==='复核后备注'});
   await page.getByRole('button',{name:'检测记录',exact:true}).click();
   await page.getByRole('button',{name:'详情',exact:true}).click();
+  await page.locator('[data-detail-tab="review"]').click();
   await page.locator('#record-notes').fill('本次导出草稿');await page.locator('#record-reviewed').uncheck();
   await page.locator('#detail-export').click();
   const detailReport=await page.evaluate(async()=>JSON.parse(await window.lastReport));
@@ -34,6 +36,7 @@ async(page)=>{
   await page.locator('#inspection-note').fill('单独保留的工作台草稿');
   await page.getByRole('button',{name:'检测记录',exact:true}).click();
   await page.getByRole('button',{name:'详情',exact:true}).click();
+  await page.locator('[data-detail-tab="review"]').click();
   await page.locator('#record-notes').fill('第二次复核意见');await page.locator('#save-review').click();
   await page.getByRole('button',{name:'图像检测',exact:true}).click();
   if(await page.locator('#inspection-note').inputValue()!=='单独保留的工作台草稿')throw Error('Review sync must preserve independent workspace draft');
@@ -47,6 +50,7 @@ async(page)=>{
   await page.getByRole('button',{name:'开始检测',exact:true}).click();
   await page.getByRole('button',{name:'检测记录',exact:true}).click();
   await page.getByRole('button',{name:'详情',exact:true}).click();
+  await page.locator('[data-detail-tab="review"]').click();
   await page.locator('#record-notes').fill('检测等待期间正在填写的意见');
   await held.fulfill({json:{detections:[],model:'audit-mock',elapsed_ms:10}});
   await page.locator('#toast').filter({hasText:'检测完成'}).waitFor();

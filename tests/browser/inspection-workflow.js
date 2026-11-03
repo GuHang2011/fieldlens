@@ -41,7 +41,8 @@ async (page) => {
     );
     await p.getByRole("button", { name: "检测记录", exact: true }).click();
     await p.locator("[data-details]").click();
-    await p.locator(".assistant-panel > summary").click();
+    await p.locator('[data-detail-tab="ai"]').click();
+
     ok(
       (await p.locator("#ai-check").isDisabled()) &&
         (await p.locator("#ai-send").isDisabled()),
@@ -200,7 +201,8 @@ async (page) => {
     await p.goto("http://127.0.0.1:5176/#history");
     await p.reload();
     await p.locator("[data-details]").click();
-    await p.locator(".assistant-panel > summary").click();
+    await p.locator('[data-detail-tab="ai"]').click();
+
     await p.locator("#ai-check").click();
     await p.waitForFunction(() => !document.querySelector("#ai-send").disabled);
     await p.locator("#ai-send").click();
@@ -238,7 +240,8 @@ async (page) => {
     await p.locator("#ai-send").click();
     await p.locator("#close-detail").click();
     await p.locator("[data-details]").click();
-    await p.locator(".assistant-panel > summary").click();
+    await p.locator('[data-detail-tab="ai"]').click();
+
     await p.waitForTimeout(800);
     ok(
       !(await p.locator("#ai-answer").isVisible()) &&

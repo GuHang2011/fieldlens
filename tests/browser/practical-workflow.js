@@ -48,15 +48,19 @@ async (page) => {
   ok(await page.locator("#filter-error").isVisible(), "date validation");
   await page.locator("#reset-filters").click();
   await page.locator("[data-details]").click();
+  await page.locator('[data-detail-tab="followup"]').click();
   await page.locator("#followup-enabled").check();
   await page.locator("#save-review").click();
   ok(await page.locator("#detail-error").isVisible(), "reason required");
+  await page.locator('[data-detail-tab="followup"]').click();
   await page.locator("#followup-reason").fill("需要补拍");
   const today = await page.evaluate(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   });
+  await page.locator('[data-detail-tab="followup"]').click();
   await page.locator("#followup-date").fill(today);
+  await page.locator('[data-detail-tab="review"]').click();
   await page.locator("#record-reviewed").check();
   await page.locator("#save-review").click();
   await page.locator('[data-task="today"]').click();
@@ -130,8 +134,11 @@ async (page) => {
   await page.locator("#close-detail").click();
   await page.locator("#record-query").fill("A-001");
   await page.locator("[data-details]").click();
+  await page.locator('[data-detail-tab="followup"]').click();
   await page.locator("#followup-status").selectOption("done");
+  await page.locator('[data-detail-tab="followup"]').click();
   await page.locator("#followup-link").selectOption("new-import");
+  await page.locator('[data-detail-tab="followup"]').click();
   await page.locator("#followup-note").fill("已补拍，参见关联记录");
   await page.locator("#save-review").click();
   await page.locator('[data-task="today"]').click();
@@ -154,6 +161,7 @@ async (page) => {
   // Failed storage preserves form and data; closing dirty form requires a decision.
   await page.locator("#record-query").fill("A-001");
   await page.locator("[data-details]").click();
+  await page.locator('[data-detail-tab="review"]').click();
   await page.locator("#record-notes").fill("未保存输入");
   await page.evaluate(() => {
     window.savedSet = Storage.prototype.setItem;
