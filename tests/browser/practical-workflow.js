@@ -249,4 +249,4 @@ async (page) => {
   ok(!errors.length, errors.join(";"));
   await page.evaluate(() => sessionStorage.setItem("practical-test", "passed"));
   return "PASS: sample/date filters, task lifecycle, backup preview/duplicate/conflict/invalid, atomic capacity protection, storage failure, discard confirmation and 24 responsive layouts";
-};
+}

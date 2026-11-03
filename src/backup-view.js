@@ -40,6 +40,15 @@ function comparison(record) {
         : "未安排",
     ],
     ["处理说明", record.followUp?.note || "无"],
+    [
+      "区域复核",
+      (record.regionReviews || [])
+        .map(
+          (r) =>
+            `${r.key}：${{ pending: "待确认", keep: "保留", reject: "疑似误检" }[r.status]} ${r.note}`,
+        )
+        .join("\n") || "均待确认",
+    ],
     ["关联记录", record.followUp?.linkedRecordId || "无"],
   ];
   return `<dl>${values.map(([label, value]) => `<dt>${label}</dt><dd>${esc(value)}</dd>`).join("")}</dl><p>检测区域 ${record.detections.length} 个</p>${record.detections.map((d) => `<p>${esc(d.label)} · ${(d.confidence * 100).toFixed(1)}%<br/>坐标：${d.box.map((v) => v.toFixed(4)).join(", ")}</p>`).join("")}`;

@@ -50,3 +50,7 @@ Pages 只提供静态网页，不运行 Flask、PyTorch 或 YOLO。在线版可�
 `FIELDLENS_MODEL` 必须指向可信、经授权且存在的本地文件；客户端不能指定文件系统路径。只支持目标检测模型，暂不处理分类、分割、姿态或旋转框模型。模型在首次推理时加载，单进程内串行调用；更换权重后重启服务。
 
 不自动下载权重，不提供默认病害模型，不声称训练指标。对实际部署，应使用独立验证集评估识别类别、漏检/误检和跨环境表现。
+
+## 可选 AI 平台
+
+v1.3 保留 `/api/detect`，新增 `/api/assistant/status` 与 `/api/assistant`，接入兼容 Chat Completions 的文字平台。服务端配置 `FIELDLENS_AI_BASE_URL`、`FIELDLENS_AI_MODEL`、`FIELDLENS_AI_API_KEY`，详见 [平台接入与发送范围](AI_PLATFORM.md)。密钥不得放入 Vite 环境变量或静态站点。

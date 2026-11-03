@@ -10,6 +10,8 @@ from pathlib import Path
 from flask import Flask, jsonify, request
 from PIL import Image, ImageOps, UnidentifiedImageError
 from werkzeug.exceptions import RequestEntityTooLarge
+from urllib.parse import urlsplit
+from .assistant import CompatibleAssistant, AssistantError, validate_context
 
 Image.MAX_IMAGE_PIXELS = 25_000_000
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
@@ -50,10 +52,43 @@ class YoloDetector:
             return output
 
 
-def create_app(detector=None):
+def create_app(detector=None, assistant=None):
     app = Flask(__name__)
     app.config["MAX_CONTENT_LENGTH"] = 11 * 1024 * 1024
     engine = detector if detector is not None else YoloDetector()
+    advisor = assistant if assistant is not None else CompatibleAssistant()
+    assistant_lock = threading.Lock()
+
+    @app.get("/api/assistant/status")
+    def assistant_status():
+        return jsonify(advisor.status)
+
+    @app.post("/api/assistant")
+    def assist():
+        origin = request.headers.get("Origin")
+        if origin:
+            parsed = urlsplit(origin)
+            if parsed.netloc != request.host and parsed.hostname not in ("localhost", "127.0.0.1", "::1"):
+                return jsonify(error="请从本地或同源界面发起请求"), 403
+        if not request.is_json:
+            return jsonify(error="请求必须是 JSON"), 415
+        if len(request.get_data()) > 128 * 1024:
+            return jsonify(error="记录内容过大，请缩小范围"), 413
+        try:
+            context, question = validate_context(request.get_json(silent=True))
+        except ValueError as error:
+            return jsonify(error=str(error)), 400
+        if not assistant_lock.acquire(blocking=False):
+            return jsonify(error="已有 AI 请求处理中，请稍后重试"), 429
+        try:
+            return jsonify(advisor.generate(context, question))
+        except AssistantError as error:
+            return jsonify(error=str(error)), error.status
+        except Exception:
+            # Do not log provider exceptions: they may contain credentials or input.
+            return jsonify(error="AI 请求失败，请检查平台配置后重试"), 502
+        finally:
+            assistant_lock.release()
 
     @app.after_request
     def headers(response):

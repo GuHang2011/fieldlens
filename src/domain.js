@@ -1,3 +1,9 @@
+import {
+  normalizeReviews,
+  reviewCounts,
+  REVIEW_LABELS,
+} from "./review-domain.js";
+
 export const DEMO_DETECTIONS = [
   { label: "叶斑区域", confidence: 0.946, box: [0.18, 0.19, 0.45, 0.55] },
   { label: "叶斑区域", confidence: 0.873, box: [0.57, 0.42, 0.81, 0.76] },
@@ -56,7 +62,7 @@ export function reportFor(record) {
   return {
     ...record,
     application: "禾镜 FieldLens",
-    version: "1.2.0",
+    version: "1.3.0",
     notice:
       record.mode === "demo"
         ? "合成插画与预设标注，仅作交互演示，并非模型推理。"
@@ -95,6 +101,7 @@ export function normalizeRecord(r) {
     height: Number.isSafeInteger(r.height) && r.height > 0 ? r.height : null,
     sample: normalizeSample(r.sample),
     followUp: normalizeFollowUp(r.followUp),
+    regionReviews: normalizeReviews(r.regionReviews, r.detections),
   };
 }
 
@@ -174,6 +181,10 @@ export function recordsCSV(records) {
       "复查原因",
       "处理说明",
       "关联记录 ID",
+      "区域待确认数",
+      "人工保留数",
+      "疑似误检数",
+      "区域复核意见",
     ],
   ];
   for (const r of records)
@@ -197,6 +208,10 @@ export function recordsCSV(records) {
       r.followUp?.reason || "",
       r.followUp?.note || "",
       r.followUp?.linkedRecordId || "",
+      ...Object.values(reviewCounts(r)),
+      (r.regionReviews || [])
+        .map((v) => `${v.key}：${REVIEW_LABELS[v.status]} ${v.note}`)
+        .join("\n"),
     ]);
   return "\ufeff" + rows.map((row) => row.map(cell).join(",")).join("\r\n");
 }
