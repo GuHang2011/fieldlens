@@ -1,0 +1,219 @@
+@media screen {
+  .demo-session-banner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    padding: 12px 28px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--primary-light);
+    color: var(--text-regular);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .demo-session-banner strong {
+    color: var(--ui-link);
+    font-size: 13px;
+  }
+  .demo-session-banner > div {
+    flex: 1;
+    min-width: 200px;
+  }
+  .demo-session-banner p {
+    margin: 2px 0 0;
+  }
+  .demo-session-banner .text-button {
+    white-space: nowrap;
+  }
+  .screen-presenting .demo-session-banner {
+    display: none;
+  }
+  .demo-intro {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    overflow: hidden;
+  }
+  .demo-intro-copy {
+    padding: clamp(24px, 3vw, 48px);
+  }
+  .demo-eyebrow {
+    color: var(--ui-link);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+  .demo-intro h2 {
+    font-size: clamp(26px, 2.5vw, 36px);
+    line-height: 1.55;
+    margin: 16px 0;
+    font-weight: 600;
+  }
+  .demo-intro p {
+    color: var(--text-regular);
+    line-height: 1.9;
+    font-size: 14px;
+    max-width: 520px;
+  }
+  .demo-intro-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 24px 0 18px;
+  }
+  .demo-intro .demo-provenance {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .demo-intro figure {
+    margin: 0;
+    position: relative;
+    min-height: 260px;
+    background: #1d342c;
+  }
+  .demo-intro img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .demo-intro figcaption {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: #172b24e8;
+    color: #e7efdf;
+    padding: 5px 9px;
+    font-size: 12px;
+    border-radius: 3px;
+  }
+  .demo-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border-light);
+    border-radius: 5px;
+    background: var(--ui-surface);
+    margin: 18px 0 24px;
+  }
+  .demo-overview > span {
+    padding: 18px 24px;
+    font-size: 12px;
+    color: var(--text-regular);
+  }
+  .demo-overview > span + span {
+    border-left: 1px solid var(--border-light);
+  }
+  .demo-overview strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 25px;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  .demo-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .demo-steps article {
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .demo-steps .step-index {
+    background: var(--primary-light);
+    color: var(--ui-link);
+    border-color: var(--border-light);
+  }
+  .demo-steps h2,
+  .demo-notes h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 14px 0 8px;
+  }
+  .demo-steps p,
+  .demo-notes p,
+  .demo-boundary {
+    font-size: 13px;
+    color: var(--text-regular);
+    line-height: 1.9;
+  }
+  .demo-steps .text-button {
+    margin-top: auto;
+    padding: 12px 0 0;
+  }
+  .demo-notes {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+    margin-top: 20px;
+  }
+  .demo-notes > div {
+    flex: 1;
+  }
+  .demo-notes h2 {
+    margin-top: 0;
+  }
+  .demo-notes p {
+    margin-bottom: 0;
+  }
+  .demo-notes > .button {
+    flex-shrink: 0;
+  }
+  @media (max-width: 1000px) {
+    .demo-intro {
+      grid-template-columns: 1fr 0.8fr;
+    }
+    .demo-steps {
+      gap: 12px;
+    }
+    .demo-steps article {
+      padding: 18px;
+    }
+  }
+  @media (max-width: 650px) {
+    .demo-session-banner {
+      padding: 12px 16px;
+    }
+    .demo-session-banner > div {
+      flex-basis: 100%;
+    }
+    .demo-intro {
+      grid-template-columns: 1fr;
+    }
+    .demo-intro-copy {
+      padding: 22px;
+    }
+    .demo-intro h2 {
+      font-size: 26px;
+    }
+    .demo-intro figure {
+      height: 210px;
+      min-height: 0;
+    }
+    .demo-overview {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .demo-overview > span:nth-child(3) {
+      border-left: 0;
+    }
+    .demo-overview > span:nth-child(n + 3) {
+      border-top: 1px solid var(--border-light);
+    }
+    .demo-steps {
+      grid-template-columns: 1fr;
+    }
+    .demo-notes {
+      display: block;
+      padding: 20px;
+    }
+    .demo-notes > .button {
+      margin-top: 18px;
+    }
+  }
+}
+@media print {
+  .demo-session-banner {
+    display: none !important;
+  }
+}

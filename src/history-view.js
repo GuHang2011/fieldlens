@@ -29,7 +29,14 @@ const source = (r) => (r.mode === "demo" ? "预设演示" : "YOLO 推理");
 
 export function renderHistoryPage(
   main,
-  { getRecords, persist, toast, initialTask = "all", apiEnabled = false },
+  {
+    getRecords,
+    persist,
+    toast,
+    initialTask = "all",
+    apiEnabled = false,
+    storageNote,
+  },
 ) {
   let query = "",
     mode = "all",
@@ -58,6 +65,8 @@ export function renderHistoryPage(
   <section class="panel history-panel"><div class="history-section-heading"><h2>记录列表</h2><div class="record-toolbar"><span id="backup-tools"></span><button class="button outlined" id="export-records">导出筛选结果 CSV</button></div></div><div class="task-shortcuts" aria-label="复查快捷筛选"><button class="button outlined" data-task="all">全部记录</button><button class="button outlined" data-task="pending">待复查</button><button class="button outlined" data-task="today">今日待办</button><button class="button outlined" data-task="overdue">已逾期</button><span id="task-overview"></span></div><div class="history-filters"><label>搜索记录<input id="record-query" type="search" placeholder="编号、地块、批次、图片或备注" maxlength="200"/></label><label>检测来源<select id="record-mode"><option value="all">全部来源</option><option value="model">YOLO 推理</option><option value="demo">预设演示</option></select></label><label>复核状态<select id="record-review"><option value="all">全部状态</option><option value="pending">待复核</option><option value="reviewed">已复核</option></select></label><button class="button outlined" id="reset-filters">重置筛选</button></div><details class="advanced-filters"><summary>更多筛选 <span>地块、批次、采集日期与复查状态</span></summary><div class="history-filters"><label>地块<select id="filter-plot"></select></label><label>巡检批次<select id="filter-batch"></select></label><label>采集日期起<input id="filter-from" type="date"/></label><label>采集日期止<input id="filter-to" type="date"/></label><label>复查任务<select id="filter-task"><option value="all">全部任务状态</option><option value="pending">待复查</option><option value="today">今日待办</option><option value="overdue">已逾期</option><option value="done">已完成</option><option value="cancelled">已取消</option><option value="none">未安排</option></select></label></div><p class="field-help">未填写采集时间的旧记录按检测日期筛选。日期按本机时区计算。</p></details><p id="filter-error" class="error" hidden>开始日期不能晚于结束日期，请调整筛选。</p><p class="table-mobile-hint">左右滑动查看记录，右侧操作栏固定显示。</p><div id="records-table"></div><div class="pagination"><span id="records-total" role="status"></span><div><button class="button outlined" id="previous-page">上一页</button><span id="page-label"></span><button class="button outlined" id="next-page">下一页</button></div></div></section>
   <p class="storage-note">本机保存 · 最多 30 条 · 满额停止新增。备份不含原图；对比、报告与 CSV 使用全部筛选结果。</p><div class="history-tools"><button class="text-button danger" id="clear">清空全部记录</button><span>复核标记仅表示已查看，不代表病害确诊。</span></div>
   <dialog id="record-dialog" class="record-dialog inspection-dialog" aria-labelledby="record-dialog-title"></dialog>`;
+  if (storageNote)
+    main.querySelector(".storage-note").textContent = storageNote;
   const filtered = () =>
     filterRecords(getRecords(), { query, mode, review, ...extra });
   const dialog = main.querySelector("#record-dialog");

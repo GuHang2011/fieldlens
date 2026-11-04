@@ -7,6 +7,9 @@ import "./access-screen.css";
 import "./appearance.css";
 import "./presentation.css";
 import "./camera-skins.css";
+import "./demo.css";
+import { createDemoSession } from "./demo-session.js";
+import { renderDemoCenter } from "./demo-view.js";
 import { createCamera } from "./camera.js";
 import {
   initializeAppearance,
@@ -58,6 +61,12 @@ const escape = (value) =>
 const apiEnabled =
   import.meta.env.DEV || import.meta.env.VITE_ENABLE_API === "true";
 const access = createAccess(apiEnabled);
+const demoSession = createDemoSession();
+let demoActive =
+  !apiEnabled && new URLSearchParams(location.search).get("demo") === "1";
+let personalWorkspace, personalObjectUrl;
+let demoScreenPreferences = { source: "demo", days: 7, distance: "standard" };
+const recordStorage = () => (demoActive ? demoSession.storage : access.storage);
 initializeAppearance();
 let disposeView = () => {};
 const onboarding = createOnboarding({
@@ -73,7 +82,7 @@ const onboarding = createOnboarding({
 });
 function initialHistory() {
   try {
-    return loadHistory(access.storage);
+    return loadHistory(recordStorage());
   } catch {
     return [];
   }
@@ -119,14 +128,24 @@ function shell() {
       <button data-view="history">${icon("history")}<span>检测记录</span></button>
       <button data-view="dashboard">${icon("target")}<span>数据大屏</span></button>
       <div class="nav-caption">使用帮助</div>
+      <button data-view="demo">${icon("leaf")}<span>在线演示</span></button>
       <button data-view="guide">${icon("target")}<span>运行指南</span></button>
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
-    <div class="sidebar-footer">FieldLens <span>v1.6.0</span></div>
+    <div class="sidebar-footer">FieldLens <span>v1.7.0</span></div>
   </aside>
-  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions">${themeControl("ui-theme")}<button class="text-button" id="onboarding-open">操作引导</button><a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}<span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
+  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions">${themeControl("ui-theme")}<button class="text-button" id="onboarding-open">操作引导</button>${demoActive ? '<span class="account-label">演示访客 · 免登录</span>' : `<a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}`} <span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
+  if (demoActive) {
+    app
+      .querySelector(".topbar")
+      .insertAdjacentHTML(
+        "afterend",
+        `<aside class="demo-session-banner" aria-label="当前演示空间"><div><strong>独立演示空间 · 预置案例为演示数据</strong><p id="demo-storage-status">${demoSession.status()}</p></div><a class="text-button" href="#demo">演示中心</a><button class="text-button" id="demo-exit">退出演示</button></aside>`,
+      );
+    document.querySelector("#demo-exit").onclick = () => exitDemo();
+  }
   app.querySelectorAll("[data-view]").forEach(
     (button) =>
       (button.onclick = () => {
@@ -153,7 +172,7 @@ function render() {
   if (
     access.enabled &&
     !access.user &&
-    !["login", "guide", "about"].includes(state.view)
+    !["login", "guide", "about", "demo"].includes(state.view)
   )
     state.view = "login";
   if (state.view !== "workspace") camera.close();
@@ -172,6 +191,7 @@ function render() {
     guide: "运行指南",
     dashboard: "数据大屏",
     login: "用户登录",
+    demo: "在线演示",
   }[state.view];
   document.querySelector("#breadcrumb-group").textContent = [
     "workspace",
@@ -187,6 +207,24 @@ function render() {
     disposeView = renderDashboard(main, {
       getRecords: () => state.history,
       toast,
+      preferences: demoActive
+        ? {
+            read: () => demoScreenPreferences,
+            save: (value) => {
+              demoScreenPreferences = value;
+            },
+          }
+        : undefined,
+      scopeLabel: demoActive ? "当前演示空间" : "当前浏览器记录",
+    });
+  else if (state.view === "demo")
+    renderDemoCenter(main, {
+      active: demoActive,
+      available: !apiEnabled,
+      count: state.history.length,
+      enter: enterDemo,
+      reset: resetDemo,
+      share: shareDemo,
     });
   else if (state.view === "login") access.renderLogin(main);
   else if (state.view === "guide") renderGuide(main);
@@ -218,7 +256,7 @@ function renderWorkspace(main) {
   ).length;
   const action = primaryAction();
   main.innerHTML = `<section class="page-heading"><div><h1>图像检测</h1><p>上传作物图片，设置检测参数并查看结果。</p></div><button class="button outlined" id="sample-top" ${state.busy ? "disabled" : ""}>加载示例</button></section>
-  ${!apiEnabled ? `<div class="capability-banner"><div><strong>在线演示</strong><span>示例为预设标注；自己的图片需连接本地 YOLO 检测。</span></div><a class="button outlined" href="#guide">本地运行指南</a></div>` : ""}
+  ${!apiEnabled ? `<div class="capability-banner"><div><strong>在线演示</strong><span>示例为预设标注；自己的图片需连接本地 YOLO 检测。</span></div><div class="page-actions"><a class="button outlined" href="#demo">完整交互演示</a><a class="text-button" href="#guide">本地运行指南</a></div></div>` : ""}
   ${!onboarding.completed() ? '<div class="guide-welcome"><span>第一次使用？跟着步骤完成检测与复核。</span><button class="text-button" id="start-guide">开始引导 →</button></div>' : ""}
   <div class="workspace-task-summary"><span>待复查 <strong>${pending}</strong> 条 · 今日及逾期 <strong>${due}</strong> 条</span><a class="text-button" href="#history?task=pending">查看复查待办</a></div>
   <div class="workspace-grid"><section class="panel image-panel"><div class="panel-heading"><div><h2><span class="step-index">01</span> 检测图片</h2>${state.image ? `<span class="badge">${state.mode === "demo" ? "演示图片" : "已载入"}</span>` : ""}</div><label class="box-switch"><input type="checkbox" id="show-boxes" ${state.boxes ? "checked" : ""}/> 显示检测框</label></div>
@@ -461,7 +499,7 @@ function useSample() {
   render();
 }
 
-function clearImage() {
+function clearImage(renderView = true) {
   if (state.busy) return;
   selectionToken++;
   if (objectUrl) {
@@ -485,7 +523,84 @@ function clearImage() {
     error: "",
     elapsedMs: null,
   });
-  render();
+  if (renderView) render();
+}
+
+function demoLocation(active, view) {
+  const url = new URL(location.href);
+  if (active) url.searchParams.set("demo", "1");
+  else url.searchParams.delete("demo");
+  url.hash = view;
+  history.replaceState(null, "", url);
+  previousUrl = location.pathname + location.search + location.hash;
+  state.view = view;
+}
+
+function enterDemo(view) {
+  if (apiEnabled) return;
+  if (state.busy || state.loading)
+    return toast("请等待当前操作完成后进入演示。");
+  camera.close();
+  if (!demoActive) {
+    personalWorkspace = { ...state };
+    personalObjectUrl = objectUrl;
+    objectUrl = null;
+    demoActive = true;
+    demoSession.initialize();
+    clearImage(false);
+    state.history = initialHistory();
+    state.mode = "demo";
+    state.threshold = 0.5;
+    state.boxes = true;
+  }
+  demoLocation(true, view);
+  shell();
+  if (view === "workspace" && !state.image) useSample();
+}
+
+function exitDemo(view = "workspace") {
+  if (state.busy || state.loading)
+    return toast("请等待当前操作完成后退出演示。");
+  camera.close();
+  clearImage(false);
+  demoActive = false;
+  if (personalWorkspace) Object.assign(state, personalWorkspace);
+  objectUrl = personalObjectUrl || null;
+  personalWorkspace = null;
+  personalObjectUrl = null;
+  state.history = initialHistory();
+  demoLocation(false, view);
+  shell();
+  toast("已退出演示，回到本机工作区。");
+}
+
+function resetDemo() {
+  if (
+    !demoActive ||
+    !confirm(
+      "重置当前演示空间？演示修改将被 12 条初始案例替换，本机个人记录不受影响。",
+    )
+  )
+    return;
+  if (state.busy || state.loading) return toast("请等待当前操作完成后重置。");
+  clearImage(false);
+  demoSession.reset();
+  demoScreenPreferences = { source: "demo", days: 7, distance: "standard" };
+  state.history = initialHistory();
+  shell();
+  toast("已恢复 12 条演示案例。");
+}
+
+async function shareDemo() {
+  const url = new URL("https://guhang2011.github.io/fieldlens/");
+  url.searchParams.set("demo", "1");
+  url.hash = "demo";
+  try {
+    await navigator.clipboard.writeText(url.href);
+    toast("已复制演示链接，只分享入口，不包含你的修改或照片。");
+  } catch {
+    prompt("复制此链接即可打开在线演示，不包含你的修改或照片：", url.href);
+  }
 }
 
 async function acceptFile(file) {
@@ -684,7 +799,9 @@ function persistRecords(records) {
     return false;
   }
   try {
-    access.storage.setItem("fieldlens.history", JSON.stringify(records));
+    recordStorage().setItem("fieldlens.history", JSON.stringify(records));
+    const demoStatus = document.querySelector("#demo-storage-status");
+    if (demoStatus) demoStatus.textContent = demoSession.status();
     const id = `${state.resultId}-${Math.round(state.threshold * 100)}`;
     const previous = state.history.find((record) => record.id === id);
     const updated = records.find((record) => record.id === id);
@@ -729,6 +846,9 @@ function renderHistory(main) {
   renderHistoryPage(main, {
     getRecords: () => state.history,
     apiEnabled,
+    storageNote: demoActive
+      ? "演示空间 · 最多 30 条 · 修改仅保留在当前标签页。备份不含原图；退出后返回本机记录。"
+      : undefined,
     persist: persistRecords,
     toast,
     initialTask:
@@ -748,7 +868,7 @@ $env:FIELDLENS_MODEL = 'D:\models\crop-detect.pt'
 
 function renderAbout(main) {
   main.innerHTML = `<section class="page-heading"><div><h1>项目说明</h1><p>功能说明、运行方式与开源许可。</p></div></section>
-  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.6.0</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和通用 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，提供浅色、青绿、深色、暖砂与跟随系统换肤，保留标准表单和结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。支持管理员开通账号、巡检大屏及操作引导。支持摄像头拍照后检测，暂不包含连续视频检测。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
+  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.7.0</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和通用 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，提供浅色、青绿、深色、暖砂与跟随系统换肤，保留标准表单和结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。支持管理员开通账号、巡检大屏及操作引导。支持摄像头拍照后检测，暂不包含连续视频检测。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
 }
 
 let toastTimer;
@@ -761,35 +881,56 @@ function toast(message) {
     el.hidden = true;
   }, 4500);
 }
-let previousRoute = location.hash;
+let previousUrl = location.pathname + location.search + location.hash;
 function route() {
   const editor = document.querySelector("#record-dialog");
+  const nextUrl = location.pathname + location.search + location.hash;
+  if (
+    editor?.open &&
+    editor.dataset.dirty === "true" &&
+    nextUrl === previousUrl
+  )
+    return;
   if (
     editor?.open &&
     editor.dataset.dirty === "true" &&
     !confirm("有未保存的修改，确定离开吗？")
   ) {
-    history.replaceState(
-      null,
-      "",
-      location.pathname + location.search + previousRoute,
-    );
+    history.replaceState(null, "", previousUrl);
     return;
   }
-  previousRoute = location.hash;
-  state.view = [
+  const nextView = [
     "workspace",
     "history",
     "about",
     "guide",
     "dashboard",
     "login",
+    "demo",
   ].includes(location.hash.slice(1).split("?")[0])
     ? location.hash.slice(1).split("?")[0]
     : "workspace";
+  const requestedDemo =
+    !apiEnabled && new URLSearchParams(location.search).get("demo") === "1";
+  if (requestedDemo !== demoActive) {
+    if (state.busy || state.loading) {
+      history.replaceState(null, "", previousUrl);
+      return toast("请等待当前操作完成后切换工作区。");
+    }
+    if (requestedDemo) enterDemo(nextView);
+    else exitDemo(nextView);
+    return;
+  }
+  previousUrl = nextUrl;
+  state.view = nextView;
   if (document.querySelector("#main")) render();
 }
 window.addEventListener("hashchange", route);
+window.addEventListener("popstate", () => {
+  const requestedDemo =
+    !apiEnabled && new URLSearchParams(location.search).get("demo") === "1";
+  if (requestedDemo !== demoActive) route();
+});
 window.addEventListener("resize", fitImage);
 window.addEventListener("beforeunload", (event) => {
   const editor = document.querySelector("#record-dialog");
@@ -814,7 +955,7 @@ window.addEventListener("fieldlens:guide-done", () =>
 );
 window.addEventListener("storage", (event) => {
   if (event.key === "fieldlens.auth.changed") location.reload();
-  if (event.key === access.historyKey()) {
+  if (!demoActive && event.key === access.historyKey()) {
     state.history = initialHistory();
     window.dispatchEvent(new Event("fieldlens:records-changed"));
   }
@@ -822,6 +963,7 @@ window.addEventListener("storage", (event) => {
 async function boot() {
   app.innerHTML = '<p class="boot-status" role="status">正在打开禾镜…</p>';
   await access.initialize();
+  if (demoActive) demoSession.initialize();
   state.history = initialHistory();
   route();
   shell();

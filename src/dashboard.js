@@ -64,15 +64,25 @@ export function summarizeRecords(
   };
 }
 
-export function renderDashboard(main, { getRecords, toast }) {
-  let { source, days, distance } = readScreenPreferences();
+export function renderDashboard(
+  main,
+  { getRecords, toast, preferences, scopeLabel = "当前浏览器记录" },
+) {
+  let { source, days, distance } = preferences
+    ? preferences.read()
+    : readScreenPreferences();
   let presenting = false,
     slide = "overview",
     rotating = false;
   let rotationTimer;
-  const remember = () => saveScreenPreferences({ source, days, distance });
+  const remember = () =>
+    (preferences ? preferences.save : saveScreenPreferences)({
+      source,
+      days,
+      distance,
+    });
   main.innerHTML = `<section class="screen-board" id="screen-board" data-distance="${distance}" data-slide="overview">
-    <header class="screen-header"><div><span class="screen-kicker">FIELDLENS · 巡检概览</span><h1>作物巡检数据大屏</h1><p>当前浏览器记录 · 按记录创建时间统计</p></div>
+    <header class="screen-header"><div><span class="screen-kicker">FIELDLENS · 巡检概览</span><h1>作物巡检数据大屏</h1><p>${esc(scopeLabel)} · 按记录创建时间统计</p></div>
     <div class="screen-actions"><button class="button outlined" id="screen-settings-toggle" aria-controls="screen-settings" aria-expanded="true">收起设置</button><button class="button outlined" id="screen-focus" aria-pressed="false">专注展示</button><button class="button primary" id="screen-fullscreen">全屏展示</button></div></header>
     <div class="screen-controls" id="screen-settings"><label>来源<select id="screen-source"><option value="all">全部来源</option><option value="model">模型记录</option><option value="demo">演示记录</option></select></label><label>时间范围<select id="screen-days"><option value="7">近 7 天</option><option value="30">近 30 天</option></select></label><label>观看视距<select id="screen-distance"><option value="standard">标准 · 桌面</option><option value="far">远距 · 投屏</option><option value="hall">超远 · 会场</option></select></label>${themeControl("screen-theme")}<button class="button outlined" id="screen-refresh">刷新数据</button><span class="screen-setting-note">按观看环境调节字号，设置保存在本机。</span></div>
     <div class="screen-context"><span id="screen-scope"></span><nav class="presentation-nav" aria-label="展示分屏" hidden><button class="button outlined" data-screen-slide="overview" aria-pressed="true">1 / 概览趋势</button><button class="button outlined" data-screen-slide="followup" aria-pressed="false">2 / 地块复查</button><button class="button outlined" id="screen-rotate" aria-pressed="false">开启轮播</button><span>15 秒切换 · Esc 退出展示</span></nav></div>
