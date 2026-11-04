@@ -53,21 +53,12 @@
 .report-controls input:focus {
   outline: 1px solid var(--primary);
 }
-.inspection-actions,
 .ai-actions,
 .ai-presets {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
-}
-.inspection-actions {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border-light);
-}
-.inspection-actions span {
-  font-size: 12px;
-  color: var(--text-regular);
 }
 .compare-selectors,
 .compare-columns {
@@ -191,12 +182,6 @@
   }
   .assistant-panel {
     padding: 12px;
-  }
-  .inspection-actions {
-    padding: 14px;
-  }
-  .inspection-actions span {
-    width: 100%;
   }
 }
 @media print {

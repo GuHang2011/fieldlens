@@ -1,0 +1,421 @@
+{
+  "baseline": {
+    "label": "baseline",
+    "commands": [
+      "npm test",
+      "npm run build"
+    ],
+    "node": "v25.2.1",
+    "npm": "11.6.2",
+    "platform": "win32",
+    "test_wall_ms": 554.35,
+    "runs": [
+      {
+        "wall_ms": 630.77,
+        "vite_ms": 73.0
+      },
+      {
+        "wall_ms": 1011.83,
+        "vite_ms": 38.0
+      },
+      {
+        "wall_ms": 537.31,
+        "vite_ms": 44.0
+      },
+      {
+        "wall_ms": 534.99,
+        "vite_ms": 43.0
+      },
+      {
+        "wall_ms": 541.32,
+        "vite_ms": 44.0
+      },
+      {
+        "wall_ms": 556.93,
+        "vite_ms": 43.0
+      },
+      {
+        "wall_ms": 530.53,
+        "vite_ms": 43.0
+      }
+    ],
+    "median_wall_ms": 541.32,
+    "median_vite_ms": 43.0,
+    "files": [
+      {
+        "file": "assets/index-BuHZoypA.css",
+        "bytes": 42677,
+        "gzip_bytes": 8623,
+        "sha256": "78f1a956214460e2a529e2c2e265d1539f48f0adc8c9e76db5fd751eadda4450"
+      },
+      {
+        "file": "assets/index-DphyGF7O.js",
+        "bytes": 72316,
+        "gzip_bytes": 24098,
+        "sha256": "ee4077cceeed1ddc4f37bf821ce5f3cf67824a3b0116423cf2f085077f315f22"
+      },
+      {
+        "file": "favicon.svg",
+        "bytes": 321,
+        "gzip_bytes": 227,
+        "sha256": "2827a334cdfa54f9b2811949354bd4540ce7d03ee91daee1cb4cfeffd33c808d"
+      },
+      {
+        "file": "index.html",
+        "bytes": 733,
+        "gzip_bytes": 505,
+        "sha256": "a4ca19ce310e6c35ae33b10d5e6a786cc05c06ddaa97d2d4f3d268ebb9317a33"
+      },
+      {
+        "file": "specimen.svg",
+        "bytes": 2936,
+        "gzip_bytes": 1129,
+        "sha256": "0d24b3835ef8f352d2f01c51eaa850ae74affe2d04b47c162425c6a3e92b8b1d"
+      }
+    ],
+    "total_bytes": 118983,
+    "total_gzip_bytes": 34582
+  },
+  "native-config": {
+    "label": "native-config",
+    "commands": [
+      "npm test",
+      "npm run build"
+    ],
+    "node": "v25.2.1",
+    "npm": "11.6.2",
+    "platform": "win32",
+    "test_wall_ms": 578.93,
+    "runs": [
+      {
+        "wall_ms": 1608.95,
+        "vite_ms": 43.0
+      },
+      {
+        "wall_ms": 526.44,
+        "vite_ms": 45.0
+      },
+      {
+        "wall_ms": 542.1,
+        "vite_ms": 47.0
+      },
+      {
+        "wall_ms": 562.33,
+        "vite_ms": 53.0
+      },
+      {
+        "wall_ms": 533.67,
+        "vite_ms": 53.0
+      },
+      {
+        "wall_ms": 551.62,
+        "vite_ms": 50.0
+      },
+      {
+        "wall_ms": 686.79,
+        "vite_ms": 65.0
+      }
+    ],
+    "median_wall_ms": 551.62,
+    "median_vite_ms": 50.0,
+    "files": [
+      {
+        "file": "assets/index-BuHZoypA.css",
+        "bytes": 42677,
+        "gzip_bytes": 8623,
+        "sha256": "78f1a956214460e2a529e2c2e265d1539f48f0adc8c9e76db5fd751eadda4450"
+      },
+      {
+        "file": "assets/index-DphyGF7O.js",
+        "bytes": 72316,
+        "gzip_bytes": 24098,
+        "sha256": "ee4077cceeed1ddc4f37bf821ce5f3cf67824a3b0116423cf2f085077f315f22"
+      },
+      {
+        "file": "favicon.svg",
+        "bytes": 321,
+        "gzip_bytes": 227,
+        "sha256": "2827a334cdfa54f9b2811949354bd4540ce7d03ee91daee1cb4cfeffd33c808d"
+      },
+      {
+        "file": "index.html",
+        "bytes": 733,
+        "gzip_bytes": 505,
+        "sha256": "a4ca19ce310e6c35ae33b10d5e6a786cc05c06ddaa97d2d4f3d268ebb9317a33"
+      },
+      {
+        "file": "specimen.svg",
+        "bytes": 2936,
+        "gzip_bytes": 1129,
+        "sha256": "0d24b3835ef8f352d2f01c51eaa850ae74affe2d04b47c162425c6a3e92b8b1d"
+      }
+    ],
+    "total_bytes": 118983,
+    "total_gzip_bytes": 34582
+  },
+  "no-preload-polyfill": {
+    "label": "no-preload-polyfill",
+    "commands": [
+      "npm test",
+      "npm run build"
+    ],
+    "node": "v25.2.1",
+    "npm": "11.6.2",
+    "platform": "win32",
+    "test_wall_ms": 576.11,
+    "runs": [
+      {
+        "wall_ms": 541.63,
+        "vite_ms": 49.0
+      },
+      {
+        "wall_ms": 507.48,
+        "vite_ms": 39.0
+      },
+      {
+        "wall_ms": 498.91,
+        "vite_ms": 40.0
+      },
+      {
+        "wall_ms": 478.84,
+        "vite_ms": 38.0
+      },
+      {
+        "wall_ms": 488.59,
+        "vite_ms": 39.0
+      },
+      {
+        "wall_ms": 479.43,
+        "vite_ms": 39.0
+      },
+      {
+        "wall_ms": 500.7,
+        "vite_ms": 38.0
+      }
+    ],
+    "median_wall_ms": 498.91,
+    "median_vite_ms": 39.0,
+    "files": [
+      {
+        "file": "assets/index-BuHZoypA.css",
+        "bytes": 42677,
+        "gzip_bytes": 8623,
+        "sha256": "78f1a956214460e2a529e2c2e265d1539f48f0adc8c9e76db5fd751eadda4450"
+      },
+      {
+        "file": "assets/index-Doz7Rorm.js",
+        "bytes": 71646,
+        "gzip_bytes": 23829,
+        "sha256": "54de05ba270f189ec63719e4b7206997ccc2005822606e8af1fdc9dd45b1024c"
+      },
+      {
+        "file": "favicon.svg",
+        "bytes": 321,
+        "gzip_bytes": 227,
+        "sha256": "2827a334cdfa54f9b2811949354bd4540ce7d03ee91daee1cb4cfeffd33c808d"
+      },
+      {
+        "file": "index.html",
+        "bytes": 733,
+        "gzip_bytes": 504,
+        "sha256": "fbdb9d3444c02985380daa9ee6ab9d0def79df1a280342bcb8d94f17199232e0"
+      },
+      {
+        "file": "specimen.svg",
+        "bytes": 2936,
+        "gzip_bytes": 1129,
+        "sha256": "0d24b3835ef8f352d2f01c51eaa850ae74affe2d04b47c162425c6a3e92b8b1d"
+      }
+    ],
+    "total_bytes": 118313,
+    "total_gzip_bytes": 34312
+  },
+  "unused-css": {
+    "label": "unused-css",
+    "commands": [
+      "npm test",
+      "npm run build"
+    ],
+    "node": "v25.2.1",
+    "npm": "11.6.2",
+    "platform": "win32",
+    "test_wall_ms": 492.01,
+    "runs": [
+      {
+        "wall_ms": 541.33,
+        "vite_ms": 65.0
+      },
+      {
+        "wall_ms": 525.54,
+        "vite_ms": 39.0
+      },
+      {
+        "wall_ms": 1460.17,
+        "vite_ms": 39.0
+      },
+      {
+        "wall_ms": 610.18,
+        "vite_ms": 50.0
+      },
+      {
+        "wall_ms": 670.65,
+        "vite_ms": 59.0
+      },
+      {
+        "wall_ms": 598.96,
+        "vite_ms": 53.0
+      },
+      {
+        "wall_ms": 579.58,
+        "vite_ms": 46.0
+      }
+    ],
+    "median_wall_ms": 598.96,
+    "median_vite_ms": 50.0,
+    "files": [
+      {
+        "file": "assets/index-BSNKfv9C.css",
+        "bytes": 42284,
+        "gzip_bytes": 8562,
+        "sha256": "15a1aae885f3349d9496bf9ac7a3bd8b647d467df861b73fcff1d871daccac0e"
+      },
+      {
+        "file": "assets/index-C0h2mTQD.js",
+        "bytes": 71646,
+        "gzip_bytes": 23829,
+        "sha256": "54de05ba270f189ec63719e4b7206997ccc2005822606e8af1fdc9dd45b1024c"
+      },
+      {
+        "file": "favicon.svg",
+        "bytes": 321,
+        "gzip_bytes": 227,
+        "sha256": "2827a334cdfa54f9b2811949354bd4540ce7d03ee91daee1cb4cfeffd33c808d"
+      },
+      {
+        "file": "index.html",
+        "bytes": 733,
+        "gzip_bytes": 504,
+        "sha256": "84d771c1f1cd51bebd8cea87883013d9aef4a99e0c65c568437e37959a86dfc8"
+      },
+      {
+        "file": "specimen.svg",
+        "bytes": 2936,
+        "gzip_bytes": 1129,
+        "sha256": "0d24b3835ef8f352d2f01c51eaa850ae74affe2d04b47c162425c6a3e92b8b1d"
+      }
+    ],
+    "total_bytes": 117920,
+    "total_gzip_bytes": 34251
+  },
+  "paired": {
+    "method": "two warmups, eight alternating AB/BA pairs, same working directory and dependencies",
+    "runs": [
+      {
+        "pair": 1,
+        "variant": "baseline",
+        "wall_ms": 542.29,
+        "vite_ms": 44.0
+      },
+      {
+        "pair": 1,
+        "variant": "optimized",
+        "wall_ms": 581.77,
+        "vite_ms": 57.0
+      },
+      {
+        "pair": 2,
+        "variant": "optimized",
+        "wall_ms": 570.86,
+        "vite_ms": 45.0
+      },
+      {
+        "pair": 2,
+        "variant": "baseline",
+        "wall_ms": 578.51,
+        "vite_ms": 48.0
+      },
+      {
+        "pair": 3,
+        "variant": "baseline",
+        "wall_ms": 621.43,
+        "vite_ms": 42.0
+      },
+      {
+        "pair": 3,
+        "variant": "optimized",
+        "wall_ms": 577.27,
+        "vite_ms": 41.0
+      },
+      {
+        "pair": 4,
+        "variant": "optimized",
+        "wall_ms": 526.85,
+        "vite_ms": 44.0
+      },
+      {
+        "pair": 4,
+        "variant": "baseline",
+        "wall_ms": 591.8,
+        "vite_ms": 50.0
+      },
+      {
+        "pair": 5,
+        "variant": "baseline",
+        "wall_ms": 605.03,
+        "vite_ms": 48.0
+      },
+      {
+        "pair": 5,
+        "variant": "optimized",
+        "wall_ms": 552.69,
+        "vite_ms": 44.0
+      },
+      {
+        "pair": 6,
+        "variant": "optimized",
+        "wall_ms": 564.71,
+        "vite_ms": 42.0
+      },
+      {
+        "pair": 6,
+        "variant": "baseline",
+        "wall_ms": 635.55,
+        "vite_ms": 58.0
+      },
+      {
+        "pair": 7,
+        "variant": "baseline",
+        "wall_ms": 570.52,
+        "vite_ms": 42.0
+      },
+      {
+        "pair": 7,
+        "variant": "optimized",
+        "wall_ms": 584.34,
+        "vite_ms": 42.0
+      },
+      {
+        "pair": 8,
+        "variant": "optimized",
+        "wall_ms": 561.65,
+        "vite_ms": 49.0
+      },
+      {
+        "pair": 8,
+        "variant": "baseline",
+        "wall_ms": 557.09,
+        "vite_ms": 45.0
+      }
+    ],
+    "medians": {
+      "baseline": {
+        "wall_ms": 585.155,
+        "vite_ms": 46.5
+      },
+      "optimized": {
+        "wall_ms": 567.7850000000001,
+        "vite_ms": 44.0
+      }
+    }
+  }
+}
