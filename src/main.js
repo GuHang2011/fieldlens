@@ -4,6 +4,13 @@ import "./practical.css";
 import "./inspection.css";
 import "./ui-refinement.css";
 import "./access-screen.css";
+import "./appearance.css";
+import "./presentation.css";
+import {
+  initializeAppearance,
+  themeControl,
+  bindThemeControls,
+} from "./appearance.js";
 import { createAccess, apiFetch } from "./access.js";
 import { renderDashboard } from "./dashboard.js";
 import { createOnboarding } from "./onboarding.js";
@@ -49,6 +56,7 @@ const escape = (value) =>
 const apiEnabled =
   import.meta.env.DEV || import.meta.env.VITE_ENABLE_API === "true";
 const access = createAccess(apiEnabled);
+initializeAppearance();
 let disposeView = () => {};
 const onboarding = createOnboarding({
   navigate: (view) => {
@@ -112,9 +120,9 @@ function shell() {
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
-    <div class="sidebar-footer">FieldLens <span>v1.4.0</span></div>
+    <div class="sidebar-footer">FieldLens <span>v1.5.0</span></div>
   </aside>
-  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions"><button class="text-button" id="onboarding-open">操作引导</button><a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}<span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
+  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions">${themeControl("ui-theme")}<button class="text-button" id="onboarding-open">操作引导</button><a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}<span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
   app.querySelectorAll("[data-view]").forEach(
     (button) =>
@@ -122,6 +130,7 @@ function shell() {
         location.hash = button.dataset.view;
       }),
   );
+  bindThemeControls(app);
   document.querySelector("#onboarding-open").onclick = () => onboarding.open();
   document.querySelector("#logout")?.addEventListener("click", async () => {
     if (!confirm("退出当前账号？未保存的输入将丢失，已保存记录仍留在本机。"))
@@ -733,7 +742,7 @@ $env:FIELDLENS_MODEL = 'D:\models\crop-detect.pt'
 
 function renderAbout(main) {
   main.innerHTML = `<section class="page-heading"><div><h1>项目说明</h1><p>功能说明、运行方式与开源许可。</p></div></section>
-  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.4.0</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和通用 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，使用蓝色主操作、标准表单与结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。支持管理员开通账号、巡检大屏及操作引导。暂不包含视频和摄像头。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
+  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.5.0</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和通用 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，使用蓝色主操作、标准表单与结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。支持管理员开通账号、巡检大屏及操作引导。暂不包含视频和摄像头。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
 }
 
 let toastTimer;
@@ -801,7 +810,7 @@ window.addEventListener("storage", (event) => {
   if (event.key === "fieldlens.auth.changed") location.reload();
   if (event.key === access.historyKey()) {
     state.history = initialHistory();
-    if (state.view === "dashboard") render();
+    window.dispatchEvent(new Event("fieldlens:records-changed"));
   }
 });
 async function boot() {

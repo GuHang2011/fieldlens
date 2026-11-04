@@ -1,0 +1,303 @@
+@media screen {
+  .screen-header {
+    align-items: flex-start;
+  }
+  .screen-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .screen-controls {
+    padding: 18px;
+    margin-bottom: 16px;
+    border: 1px solid var(--screen-line);
+    border-radius: 5px;
+  }
+  .screen-controls .theme-control {
+    display: grid;
+  }
+  .screen-controls select {
+    min-width: 130px;
+    width: 100%;
+  }
+  .screen-setting-note {
+    font-size: 12px;
+    color: #a9c0d1;
+    align-self: center;
+    line-height: 1.8;
+    margin-left: auto;
+  }
+  .screen-context {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+    color: #b4c9d9;
+    font-size: 13px;
+  }
+  .presentation-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .presentation-nav .button {
+    padding: 8px 12px;
+  }
+  .presentation-nav [aria-pressed="true"] {
+    border-color: #82bce8;
+    background: #254e6b;
+    color: white;
+  }
+  .presentation-nav > span {
+    font-size: 12px;
+    color: #a9c0d1;
+    margin-left: 6px;
+  }
+  .screen-board {
+    --screen-scale: 1;
+  }
+  .screen-board[data-distance="far"] {
+    --screen-scale: 1.3;
+  }
+  .screen-board[data-distance="hall"] {
+    --screen-scale: 1.65;
+  }
+  .screen-board .screen-header h1 {
+    font-size: calc(26px * var(--screen-scale));
+  }
+  .screen-board .screen-stats strong {
+    font-size: calc(34px * var(--screen-scale));
+  }
+  .screen-board .screen-stats section > span {
+    font-size: calc(13px * var(--screen-scale));
+  }
+  .screen-board .screen-stats small {
+    font-size: calc(12px * var(--screen-scale));
+  }
+  .screen-board .screen-panel h2 {
+    font-size: calc(16px * var(--screen-scale));
+  }
+  .screen-board .screen-panel h2 :is(small, a) {
+    font-size: calc(12px * var(--screen-scale));
+  }
+  .screen-board
+    :is(.screen-rank li > div:first-child, .screen-tasks li, .screen-empty) {
+    font-size: calc(13px * var(--screen-scale));
+  }
+  .screen-board
+    :is(
+      .screen-provenance,
+      .screen-context,
+      .screen-header p,
+      .screen-footer,
+      .trend-values
+    ) {
+    font-size: calc(12px * var(--screen-scale));
+  }
+  .screen-board .trend-day {
+    font-size: calc(10px * var(--screen-scale));
+  }
+  .screen-board .trend-count {
+    height: calc(14px * var(--screen-scale));
+  }
+  .screen-board .trend-day > span:last-child {
+    height: calc(15px * var(--screen-scale));
+  }
+  .screen-board .trend-bars {
+    height: calc(210px * var(--screen-scale));
+  }
+  .screen-board .trend-stack {
+    height: calc(160px * var(--screen-scale));
+  }
+  .screen-board .trend-values :is(th, td) {
+    font-size: calc(12px * var(--screen-scale));
+  }
+  .screen-board .screen-rank li {
+    margin-bottom: calc(16px * var(--screen-scale));
+  }
+  .screen-board .screen-tasks li {
+    padding: calc(12px * var(--screen-scale)) 0;
+  }
+  .screen-board .screen-stats strong {
+    overflow-wrap: anywhere;
+    font-weight: 600;
+  }
+  .screen-board .screen-stats small {
+    display: inline-block;
+    font-weight: 400;
+  }
+  .screen-board .screen-tasks li > div {
+    min-width: 0;
+  }
+
+  body.screen-presenting .sidebar,
+  body.screen-presenting .topbar,
+  body.screen-presenting .page-footer {
+    display: none;
+  }
+  body.screen-presenting .main-shell {
+    margin: 0;
+  }
+  body.screen-presenting main {
+    padding: 0;
+    max-width: none;
+  }
+  .screen-board.is-presenting {
+    border-radius: 0;
+    min-height: 100dvh;
+    padding: clamp(20px, 2vw, 60px);
+    display: flex;
+    flex-direction: column;
+  }
+  .screen-board.is-presenting #screen-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .screen-board.is-presenting .screen-grid {
+    flex: 1;
+  }
+  .screen-board.is-presenting .screen-trend {
+    display: flex;
+    flex-direction: column;
+  }
+  .screen-board.is-presenting .trend-chart {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .screen-board.is-presenting .trend-bars {
+    flex: 1;
+    height: auto;
+    min-height: calc(210px * var(--screen-scale));
+  }
+  .screen-board.is-presenting .trend-stack {
+    flex: 1;
+    height: auto;
+    min-height: calc(160px * var(--screen-scale));
+  }
+  .screen-board.is-presenting
+    :is(
+      .screen-actions .button,
+      .presentation-nav .button,
+      .presentation-nav > span
+    ) {
+    font-size: clamp(12px, calc(12px * var(--screen-scale)), 22px);
+  }
+  .screen-board.is-presenting .screen-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+  .screen-board.is-presenting .screen-tasks {
+    grid-column: auto;
+  }
+  .screen-board.is-presenting .screen-tasks ul {
+    display: block;
+  }
+  .screen-board.is-presenting[data-slide="overview"]
+    :is(.screen-plots, .screen-tasks),
+  .screen-board.is-presenting[data-slide="followup"]
+    :is(.screen-trend, .screen-labels) {
+    display: none;
+  }
+  .screen-board.is-presenting .screen-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: inherit;
+    padding-bottom: 14px;
+  }
+  .screen-board.is-presenting .screen-panel {
+    padding: calc(20px * var(--screen-scale));
+  }
+  .screen-board.is-presenting .trend-stack {
+    max-width: 60px;
+  }
+  .screen-board:fullscreen {
+    overflow: auto;
+  }
+  .screen-board:fullscreen .screen-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: inherit;
+    padding-bottom: 12px;
+  }
+  @media (min-width: 2600px) {
+    .screen-board.is-presenting {
+      --screen-scale: 1.4;
+    }
+    .screen-board.is-presenting[data-distance="far"] {
+      --screen-scale: 1.9;
+    }
+    .screen-board.is-presenting[data-distance="hall"] {
+      --screen-scale: 2.5;
+    }
+  }
+  @media (max-width: 1100px) {
+    .screen-actions {
+      justify-content: flex-start;
+    }
+    .screen-setting-note {
+      width: 100%;
+      margin: 0;
+    }
+  }
+  @media (max-width: 800px) {
+    .screen-board.is-presenting .screen-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .screen-board.is-presenting .screen-header {
+      position: static;
+    }
+    .screen-board[data-distance="hall"] {
+      --screen-scale: 1.4;
+    }
+    .screen-board[data-distance="far"] {
+      --screen-scale: 1.2;
+    }
+    .screen-board .screen-panel h2 {
+      flex-wrap: wrap;
+    }
+  }
+  @media (max-width: 650px) {
+    .screen-controls {
+      padding: 12px;
+      gap: 12px;
+    }
+    .screen-controls select {
+      min-width: 0;
+    }
+    .screen-setting-note {
+      grid-column: 1 / -1;
+    }
+    .screen-board.is-presenting {
+      padding: 18px 12px;
+    }
+    .screen-board .screen-header h1 {
+      font-size: calc(21px * var(--screen-scale));
+    }
+    .screen-board .screen-stats strong {
+      font-size: calc(27px * var(--screen-scale));
+    }
+    .screen-board .screen-stats section {
+      padding: 16px 12px;
+    }
+    .screen-board .trend-day {
+      font-size: 10px;
+    }
+    .screen-board.is-presenting .screen-panel {
+      padding: 18px 14px;
+    }
+    .presentation-nav > span {
+      width: 100%;
+      margin: 0;
+    }
+    .screen-context {
+      line-height: 1.8;
+    }
+  }
+}
