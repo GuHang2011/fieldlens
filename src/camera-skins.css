@@ -1,0 +1,341 @@
+@media screen {
+  :root[data-ui-theme="sand"] {
+    --primary: #9c642e;
+    --primary-light: #f6ecdd;
+    --ui-accent: #98602b;
+    --ui-accent-hover: #7d4e23;
+    --ui-link: #895728;
+    --ui-page: #f6f2eb;
+    --ui-soft: #faf6ef;
+    --fill-light: #f8f3eb;
+    --border: #dcd1c2;
+    --border-light: #e5dccf;
+    --border-lighter: #eee6db;
+    --text-primary: #493d30;
+    --text-regular: #685a49;
+    --muted: #7d6d58;
+  }
+  :root[data-ui-theme="sand"]
+    :is(.capability-banner, .login-story, .results-summary) {
+    background: #f6ecdd;
+  }
+  :root[data-ui-theme="sand"]
+    :is(
+      .sample-details,
+      .demo-note,
+      .history-filters,
+      .advanced-filters,
+      .followup-fields,
+      .assistant-panel
+    ) {
+    background: var(--ui-soft);
+    border-color: var(--border-light);
+  }
+  :root[data-ui-theme="sand"] .login-story :is(h1, .login-eyebrow) {
+    color: #745637;
+  }
+  :root[data-ui-theme="sand"] .screen-board {
+    --screen-line: #5d4b36;
+    background: #2d241a;
+  }
+  :root[data-ui-theme="sand"] :is(.screen-panel, .screen-stats) {
+    background: #3a3024;
+  }
+  :root[data-ui-theme="sand"]
+    :is(.screen-board select, .screen-board .outlined, .screen-empty-banner) {
+    background: #4c3d2c;
+    border-color: #826d50;
+  }
+  :root[data-ui-theme="sand"] .guide-progress i.active {
+    background: var(--primary);
+  }
+  :root[data-ui-theme="sand"] .guide-highlight {
+    outline-color: var(--primary) !important;
+  }
+  .theme-switcher {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    min-width: 0;
+  }
+  .image-toolbar #file-name {
+    margin-right: auto;
+  }
+  .theme-switcher > button {
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 6px 3px;
+  }
+  .screen-controls .theme-switcher {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+  .screen-controls .theme-control {
+    min-width: 0;
+  }
+  .screen-controls .theme-switcher > button {
+    min-height: 38px;
+    color: #b5d8f2;
+  }
+  .skin-dialog[open],
+  .camera-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: calc(100dvh - 32px);
+    width: min(740px, calc(100vw - 32px));
+  }
+  .camera-dialog[open] {
+    width: min(860px, calc(100vw - 32px));
+  }
+  .skin-dialog .panel-heading,
+  .camera-dialog .panel-heading {
+    flex-shrink: 0;
+  }
+  .skin-body,
+  .camera-body {
+    padding: 22px;
+    min-height: 0;
+    overflow: auto;
+  }
+  .skin-body > .field-help,
+  .camera-body > .field-help:first-child {
+    margin: 0 0 18px;
+    line-height: 1.8;
+  }
+  .skin-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 0;
+    border: 0;
+    margin: 0;
+  }
+  .skin-options legend {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .skin-card {
+    position: relative;
+    display: grid;
+    gap: 9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    background: var(--ui-surface);
+  }
+  .skin-card:has(input:checked) {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  .skin-card:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+  .skin-card input {
+    position: absolute;
+    right: 12px;
+    bottom: 45px;
+    accent-color: var(--primary);
+  }
+  .skin-card strong {
+    font-size: 14px;
+    color: var(--text-primary);
+    padding-right: 24px;
+  }
+  .skin-card small {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text-regular);
+  }
+  .skin-preview {
+    --swatch-bg: #f0f4fa;
+    --swatch-side: #fff;
+    --swatch-card: #fff;
+    --swatch-accent: #2874bd;
+    display: flex;
+    height: 90px;
+    gap: 8px;
+    padding: 8px;
+    background: var(--swatch-bg);
+    border: 1px solid #7d8b9b33;
+    border-radius: 4px;
+  }
+  .skin-preview--field {
+    --swatch-bg: #e8f1e6;
+    --swatch-accent: #287c60;
+  }
+  .skin-preview--dark {
+    --swatch-bg: #121b26;
+    --swatch-side: #283547;
+    --swatch-card: #283547;
+    --swatch-accent: #78b8fa;
+  }
+  .skin-preview--sand {
+    --swatch-bg: #f3e9da;
+    --swatch-accent: #98602b;
+  }
+  .skin-preview--system {
+    --swatch-bg: #e6eaf0;
+    --swatch-side: #283547;
+    --swatch-accent: #8097ad;
+  }
+  .skin-preview > i {
+    width: 20%;
+    border-radius: 2px;
+    background: var(--swatch-side);
+    border-top: 5px solid var(--swatch-accent);
+  }
+  .skin-preview > span {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    flex: 1;
+  }
+  .skin-preview b {
+    grid-column: 1 / -1;
+    height: 12px;
+    background: var(--swatch-accent);
+    border-radius: 2px;
+  }
+  .skin-preview em {
+    background: var(--swatch-card);
+    border-radius: 2px;
+  }
+  #skin-status {
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--muted);
+    margin: 20px 0 0;
+    min-height: 22px;
+  }
+  .skin-footer,
+  .camera-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 12px;
+    padding: 16px 22px;
+    border-top: 1px solid var(--border-light);
+    background: var(--ui-surface);
+  }
+  .camera-footer {
+    justify-content: flex-end;
+  }
+  .camera-device-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .camera-device-row label {
+    white-space: nowrap;
+    color: var(--text-regular);
+  }
+  #camera-device {
+    flex: 1;
+    min-width: 0;
+  }
+  .camera-stage {
+    position: relative;
+    background: #101c28;
+    border-radius: 5px;
+    overflow: hidden;
+    height: min(48vh, 420px);
+    min-height: 180px;
+  }
+  .camera-stage video,
+  .camera-stage img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .camera-dialog[data-phase="opening"] .camera-stage::after,
+  .camera-dialog[data-phase="error"] .camera-stage::after,
+  .camera-dialog[data-phase="idle"] .camera-stage::after {
+    content: "等待摄像头画面";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    color: #b5c9da;
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .camera-dialog[data-phase="error"] .camera-stage::after {
+    content: "摄像头暂不可用";
+  }
+  .camera-dialog[data-phase="idle"] .camera-stage::after {
+    content: "预览已停止";
+  }
+  .camera-status {
+    color: var(--text-regular);
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 14px 0;
+    min-height: 24px;
+  }
+  .camera-dialog[data-phase="error"] .camera-status {
+    color: var(--danger);
+  }
+  .camera-body .field-help {
+    line-height: 1.7;
+  }
+  :root[data-ui-theme="dark"]
+    .camera-dialog[data-phase="error"]
+    .camera-status {
+    color: #f0a4a4;
+  }
+  @media (max-width: 650px) {
+    .topbar-actions .theme-switcher {
+      margin-right: auto;
+    }
+    .topbar-actions .theme-control {
+      margin-right: 0;
+    }
+    .skin-dialog[open],
+    .camera-dialog[open] {
+      width: calc(100vw - 16px);
+      max-width: none;
+      max-height: calc(100dvh - 16px);
+    }
+    .skin-body,
+    .camera-body {
+      padding: 16px;
+    }
+    .skin-options {
+      gap: 10px;
+    }
+    .skin-card {
+      padding: 10px;
+    }
+    .skin-preview {
+      height: 74px;
+    }
+    .skin-card small {
+      min-height: 40px;
+    }
+    .skin-card input {
+      bottom: 63px;
+    }
+    .skin-footer,
+    .camera-footer {
+      padding: 12px 16px;
+    }
+    .camera-stage {
+      height: min(40vh, 320px);
+    }
+    .image-toolbar {
+      flex-wrap: wrap;
+    }
+    .image-toolbar #file-name {
+      flex-basis: 100%;
+    }
+  }
+}
