@@ -14,3 +14,6 @@ runs/
 output/
 .playwright-cli/
 *.log
+instance/
+*.sqlite3
+*.sqlite3-*

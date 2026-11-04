@@ -4,13 +4,21 @@
 
 仓库使用 `.github/workflows/pages.yml` 构建前端，并通过 GitHub Pages 发布。仓库 Settings → Pages 的 Source 应设为 GitHub Actions。推送 `main` 或手动执行工作流会生成部署。
 
-Pages 只提供静态网页，不运行 Flask、PyTorch 或 YOLO。在线版可以体验原创标本的固定标注、阈值筛选、本地记录及导出；用户图片只在浏览器预览，真实检测须在本地启动完整服务。
+Pages 只提供静态网页，不运行 Flask、PyTorch、YOLO 或账号验证。在线版可以体验原创标本的固定标注、阈值筛选、本地记录、大屏和引导；登录页禁用密码提交并提供演示入口。用户图片只在浏览器预览，真实检测和真实登录须部署完整服务。
 
 ## 本地完整运行
 
-分别运行 `npm run dev` 和 `python -m server.app`。Vite 开发代理将 `/api/*` 转到 `127.0.0.1:5050`。默认前后端均只绑定环回地址，无需数据库、云密钥或外部图片存储。
+分别运行 `npm run dev` 和 `python -m server.app`。Vite 开发代理将 `/api/*` 转到 `127.0.0.1:5050` 并保留 Host。默认前后端均只绑定环回地址，认证默认关闭；单机试用无需数据库或云密钥。
 
-若部署在自己的服务器，构建前设置 `VITE_ENABLE_API=true`，并用同源反向代理将 `/api` 转发到正式 WSGI 服务（例如 Linux 上的 Gunicorn）。Vite preview 不包含后端代理，不能代替完整部署。Flask 内置服务器仅供本地开发；公开服务还需要身份认证、请求速率/并发限制、传输加密和符合 AGPL 的源码获取入口。
+若部署在自己的服务器，构建前设置 `VITE_ENABLE_API=true`，并用同源反向代理将 `/api` 转发到正式 WSGI 服务（例如 Linux 上的 Gunicorn）。服务端设置 `FIELDLENS_AUTH_ENABLED=true`，由管理员开通账号；HTTPS 设置 `FIELDLENS_COOKIE_SECURE=true`。代理须保留浏览器请求的 Host。账号库使用持久化磁盘，不能放入静态发布目录。详见 [账号部署步骤](ACCOUNTS_AND_SCREEN.md)。
+
+Vite preview 不包含后端代理，不能代替完整部署。Flask 内置服务器仅供本地开发；公开服务还需按实际负载配置推理速率/并发限制、HTTPS 和符合 AGPL 的源码获取入口。
+
+## 认证接口
+
+`GET /api/auth/session` 返回 `enabled` 与当前用户的公开信息；未登录时 `user` 为 `null`。`POST /api/auth/login` 接收 JSON `username`、`password`，验证成功设置会话 Cookie。`POST /api/auth/logout` 撤销当前会话。
+
+启用认证后，所有检测与 AI API 要求有效会话，否则返回 401。写请求需携带 `X-FieldLens-Request: 1`，浏览器 Origin 必须与 Host 一致，不提供跨域登录。登录错误返回 401，15 分钟内按账号或连接 IP 达到 8 次失败返回 429。退出、重置密码和停用行为详见账号文档。
 
 ## API
 

@@ -3,6 +3,10 @@ import "./features.css";
 import "./practical.css";
 import "./inspection.css";
 import "./ui-refinement.css";
+import "./access-screen.css";
+import { createAccess, apiFetch } from "./access.js";
+import { renderDashboard } from "./dashboard.js";
+import { createOnboarding } from "./onboarding.js";
 import { newSample, sampleFields, readSample } from "./record-fields.js";
 import { renderHistoryPage } from "./history-view.js";
 import {
@@ -44,9 +48,22 @@ const escape = (value) =>
   );
 const apiEnabled =
   import.meta.env.DEV || import.meta.env.VITE_ENABLE_API === "true";
+const access = createAccess(apiEnabled);
+let disposeView = () => {};
+const onboarding = createOnboarding({
+  navigate: (view) => {
+    const editor = document.querySelector("#record-dialog");
+    if (editor?.open && editor.dataset.dirty === "true") {
+      if (!confirm("有未保存的修改，确定离开吗？")) return false;
+      editor.close();
+    }
+    location.hash = view;
+    return true;
+  },
+});
 function initialHistory() {
   try {
-    return loadHistory(localStorage);
+    return loadHistory(access.storage);
   } catch {
     return [];
   }
@@ -60,7 +77,7 @@ const state = {
   file: null,
   image: "",
   name: "",
-  history: initialHistory(),
+  history: [],
   busy: false,
   status: "checking",
   model: "",
@@ -89,14 +106,15 @@ function shell() {
       <div class="nav-caption">检测管理</div>
       <button data-view="workspace">${icon("scan")}<span>图像检测</span></button>
       <button data-view="history">${icon("history")}<span>检测记录</span></button>
+      <button data-view="dashboard">${icon("target")}<span>数据大屏</span></button>
       <div class="nav-caption">使用帮助</div>
       <button data-view="guide">${icon("target")}<span>运行指南</span></button>
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
-    <div class="sidebar-footer">FieldLens <span>v1.3.1</span></div>
+    <div class="sidebar-footer">FieldLens <span>v1.4.0</span></div>
   </aside>
-  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
+  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions"><button class="text-button" id="onboarding-open">操作引导</button><a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}<span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物病害检测系统</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
   app.querySelectorAll("[data-view]").forEach(
     (button) =>
@@ -104,10 +122,30 @@ function shell() {
         location.hash = button.dataset.view;
       }),
   );
+  document.querySelector("#onboarding-open").onclick = () => onboarding.open();
+  document.querySelector("#logout")?.addEventListener("click", async () => {
+    if (!confirm("退出当前账号？未保存的输入将丢失，已保存记录仍留在本机。"))
+      return;
+    try {
+      await access.logout();
+    } catch (error) {
+      toast(error.message);
+    }
+  });
   render();
 }
 
 function render() {
+  disposeView();
+  disposeView = () => {};
+  if (
+    access.enabled &&
+    !access.user &&
+    !["login", "guide", "about"].includes(state.view)
+  )
+    state.view = "login";
+  document.body.classList.toggle("login-view", state.view === "login");
+  document.body.classList.toggle("dashboard-view", state.view === "dashboard");
   app.querySelectorAll("[data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === state.view);
     if (button.dataset.view === state.view)
@@ -119,16 +157,25 @@ function render() {
     history: "检测记录",
     about: "项目说明",
     guide: "运行指南",
+    dashboard: "数据大屏",
+    login: "用户登录",
   }[state.view];
   document.querySelector("#breadcrumb-group").textContent = [
     "workspace",
     "history",
+    "dashboard",
   ].includes(state.view)
     ? "检测管理"
     : "使用帮助";
   const main = document.querySelector("#main");
   if (state.view === "workspace") renderWorkspace(main);
   else if (state.view === "history") renderHistory(main);
+  else if (state.view === "dashboard")
+    disposeView = renderDashboard(main, {
+      getRecords: () => state.history,
+      toast,
+    });
+  else if (state.view === "login") access.renderLogin(main);
   else if (state.view === "guide") renderGuide(main);
   else renderAbout(main);
 }
@@ -159,6 +206,7 @@ function renderWorkspace(main) {
   const action = primaryAction();
   main.innerHTML = `<section class="page-heading"><div><h1>图像检测</h1><p>上传作物图片，设置检测参数并查看结果。</p></div><button class="button outlined" id="sample-top" ${state.busy ? "disabled" : ""}>加载示例</button></section>
   ${!apiEnabled ? `<div class="capability-banner"><div><strong>在线演示</strong><span>示例为预设标注；自己的图片需连接本地 YOLO 检测。</span></div><a class="button outlined" href="#guide">本地运行指南</a></div>` : ""}
+  ${!onboarding.completed() ? '<div class="guide-welcome"><span>第一次使用？跟着步骤完成检测与复核。</span><button class="text-button" id="start-guide">开始引导 →</button></div>' : ""}
   <div class="workspace-task-summary"><span>待复查 <strong>${pending}</strong> 条 · 今日及逾期 <strong>${due}</strong> 条</span><a class="text-button" href="#history?task=pending">查看复查待办</a></div>
   <div class="workspace-grid"><section class="panel image-panel"><div class="panel-heading"><div><h2><span class="step-index">01</span> 检测图片</h2>${state.image ? `<span class="badge">${state.mode === "demo" ? "演示图片" : "已上传"}</span>` : ""}</div><label class="box-switch"><input type="checkbox" id="show-boxes" ${state.boxes ? "checked" : ""}/> 显示检测框</label></div>
   <div class="image-stage ${state.image ? "has-image" : "is-empty"}" id="dropzone">${state.image ? `<div class="image-wrap"><img id="specimen" src="${escape(state.image)}" alt="${escape(state.name)}"/><svg id="box-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="检测区域标注"></svg></div><div class="image-corner">${state.mode === "demo" ? "演示图片 · 预设标注" : "图片预览"}</div>` : `<button class="empty-upload" id="empty-upload" ${state.busy ? "disabled" : ""}>${icon("upload")}<strong>将图片拖到此处，或<span>点击上传</span></strong><span class="upload-hint">支持 JPG、PNG、WebP，单张不超过 10 MB</span></button>`}<div class="scan-line" ${state.busy ? "" : "hidden"}></div></div>
@@ -170,6 +218,9 @@ function renderWorkspace(main) {
   <div class="range-heading"><label for="threshold">置信度阈值</label><output id="threshold-output">${Math.round(state.threshold * 100)}%</output></div><input id="threshold" type="range" min="10" max="99" value="${Math.round(state.threshold * 100)}" ${state.busy ? "disabled" : ""}/><div class="range-labels"><span>10%</span><span>99%</span></div><p class="field-help">低于阈值的结果不显示。模型检测调整参数后需重新运行。</p><button class="button primary" id="detect" ${action.disabled ? "disabled" : ""}>${icon("scan")} ${action.label}</button>${state.busy ? '<button class="text-button" id="cancel-detection">取消等待</button>' : state.mode === "model" && state.status !== "ready" ? '<a class="setup-link" href="#guide">查看环境配置与模型接入步骤</a>' : ""}<p class="error" id="error" role="alert" ${state.error ? "" : "hidden"}>${escape(state.error)}</p></div></section>
   <section class="panel results"><div class="panel-heading"><h2><span class="step-index">03</span> 检测结果</h2><span class="badge" id="result-count"></span></div><div id="results-summary" class="results-summary" hidden></div><div id="results-body"></div><div class="record-draft"><label for="inspection-note">记录备注（可选）</label><textarea id="inspection-note" maxlength="1000" rows="2" placeholder="采集地点、样本编号或待复核事项">${escape(state.notes)}</textarea></div><div class="results-footer export-options"><button id="export-image" class="button outlined">导出标注图</button><button id="export-csv" class="button outlined">CSV</button><button id="export" class="button outlined">${icon("download")} 导出 JSON</button><button id="save" class="button primary">保存记录</button></div></section></aside></div>
   <p class="workspace-note">检测结果仅供参考，请结合实际情况复核。</p>`;
+  main
+    .querySelector("#start-guide")
+    ?.addEventListener("click", () => onboarding.open());
   main.querySelectorAll("[data-sample]").forEach(
     (input) =>
       (input.oninput = () => {
@@ -484,7 +535,7 @@ async function checkService() {
     return;
   }
   try {
-    const response = await fetch("/api/health", {
+    const response = await apiFetch("/api/health", {
       signal: AbortSignal.timeout(4000),
     });
     if (!response.ok) throw new Error();
@@ -538,7 +589,7 @@ async function detect() {
       const body = new FormData();
       body.append("image", state.file);
       body.append("confidence", String(state.threshold));
-      const response = await fetch("/api/detect", {
+      const response = await apiFetch("/api/detect", {
         method: "POST",
         body,
         signal: AbortSignal.any([
@@ -618,7 +669,7 @@ function persistRecords(records) {
     return false;
   }
   try {
-    localStorage.setItem("fieldlens.history", JSON.stringify(records));
+    access.storage.setItem("fieldlens.history", JSON.stringify(records));
     const id = `${state.resultId}-${Math.round(state.threshold * 100)}`;
     const previous = state.history.find((record) => record.id === id);
     const updated = records.find((record) => record.id === id);
@@ -677,12 +728,12 @@ function renderGuide(main) {
 $env:FIELDLENS_MODEL = 'D:\models\crop-detect.pt'
 .\.venv\Scripts\python.exe -m server.app`;
   const unix = `python3 -m venv .venv\n.venv/bin/python -m pip install -r server/requirements-yolo.txt\nFIELDLENS_MODEL=/absolute/path/crop-detect.pt .venv/bin/python -m server.app`;
-  main.innerHTML = `<section class="page-heading"><div><h1>运行指南</h1><p>在线体验与本地模型检测的使用方式。</p></div></section><section class="panel guide-panel"><div class="panel-heading"><h2>先选择使用方式</h2></div><div class="guide-body"><div class="guide-options"><div><h3>只体验操作</h3><p>加载示例后，可调节阈值、缩放图片、导出标注图，并在记录中填写复核备注。无需安装环境，示例结果为预设数据。</p><a class="button primary" href="#workspace">返回工作台</a></div><div><h3>识别自己的图片</h3><p>需要在电脑上运行前端和 Python 服务，并提供有授权的作物病害目标检测权重。在线静态页面不运行 YOLO。</p><a class="button outlined" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">下载项目源码</a></div></div><ol class="setup-steps"><li><h3>准备环境和模型</h3><p>Node.js 22.12+、Python 3.12。下载源码后进入项目目录，准备经授权的 YOLO 目标检测权重；普通 COCO 模型不能用于识别作物病害。</p></li><li><h3>启动模型服务</h3><p>将命令中的权重路径替换为实际路径。安装 YOLO 会下载 PyTorch 等依赖。</p><details open><summary>Windows PowerShell</summary><pre><code>${escape(windows)}</code></pre></details><details><summary>macOS / Linux</summary><pre><code>${escape(unix)}</code></pre></details></li><li><h3>另开终端启动前端</h3><pre><code>npm ci\nnpm run dev</code></pre><p>打开终端显示的地址。页面显示“YOLO 已就绪”后，上传图片并开始检测。</p></li></ol><div class="demo-note">${icon("info")}<span>提示未连接：检查 Python 服务是否在 5050 端口运行。提示未配置模型：检查 FIELDLENS_MODEL 路径并重启服务。推理失败：检查权重是否为目标检测模型及服务日志。</span></div><a class="text-button" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">查看完整部署文档</a></div></section><section class="panel guide-panel"><div class="panel-heading"><h2>接入 AI 平台</h2><span class="badge">可选功能</span></div><div class="guide-body"><p>兼容 Chat Completions 接口的文字模型，包括 DeepSeek 等。YOLO 继续负责检测；AI 根据记录文字整理复核要点和巡检摘要。</p><ol><li>在 Python 服务端设置 FIELDLENS_AI_BASE_URL、FIELDLENS_AI_MODEL 和 FIELDLENS_AI_API_KEY，重启服务。</li><li>打开“检测记录 → 详情 → AI 辅助复核”，检查配置。</li><li>核对发送内容预览后提交问题，回答可另存为 TXT。</li></ol><p>密钥只放在服务端，不写入网页或备份。在线展示版不发送 AI 请求；未配置 AI 也能使用检测与记录功能。</p><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/AI_PLATFORM.md" target="_blank" rel="noopener">查看 DeepSeek 与通用平台配置示例</a></div></section>`;
+  main.innerHTML = `<section class="page-heading"><div><h1>运行指南</h1><p>在线体验与本地模型检测的使用方式。</p></div></section><section class="panel guide-panel"><div class="panel-heading"><h2>先选择使用方式</h2></div><div class="guide-body"><div class="guide-options"><div><h3>只体验操作</h3><p>加载示例后，可调节阈值、缩放图片、导出标注图，并在记录中填写复核备注。无需安装环境，示例结果为预设数据。</p><a class="button primary" href="#workspace">返回工作台</a></div><div><h3>识别自己的图片</h3><p>需要在电脑上运行前端和 Python 服务，并提供有授权的作物病害目标检测权重。在线静态页面不运行 YOLO。</p><a class="button outlined" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">下载项目源码</a></div></div><ol class="setup-steps"><li><h3>准备环境和模型</h3><p>Node.js 22.12+、Python 3.12。下载源码后进入项目目录，准备经授权的 YOLO 目标检测权重；普通 COCO 模型不能用于识别作物病害。</p></li><li><h3>启动模型服务</h3><p>将命令中的权重路径替换为实际路径。安装 YOLO 会下载 PyTorch 等依赖。</p><details open><summary>Windows PowerShell</summary><pre><code>${escape(windows)}</code></pre></details><details><summary>macOS / Linux</summary><pre><code>${escape(unix)}</code></pre></details></li><li><h3>另开终端启动前端</h3><pre><code>npm ci\nnpm run dev</code></pre><p>打开终端显示的地址。页面显示“YOLO 已就绪”后，上传图片并开始检测。</p></li></ol><div class="demo-note">${icon("info")}<span>提示未连接：检查 Python 服务是否在 5050 端口运行。提示未配置模型：检查 FIELDLENS_MODEL 路径并重启服务。推理失败：检查权重是否为目标检测模型及服务日志。</span></div><a class="text-button" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">查看完整部署文档</a></div></section><section class="panel guide-panel"><div class="panel-heading"><h2>接入 AI 平台</h2><span class="badge">可选功能</span></div><div class="guide-body"><p>兼容 Chat Completions 接口的文字模型，包括 DeepSeek 等。YOLO 继续负责检测；AI 根据记录文字整理复核要点和巡检摘要。</p><ol><li>在 Python 服务端设置 FIELDLENS_AI_BASE_URL、FIELDLENS_AI_MODEL 和 FIELDLENS_AI_API_KEY，重启服务。</li><li>打开“检测记录 → 详情 → AI 辅助”，检查配置。</li><li>核对发送内容预览后提交问题，回答可另存为 TXT。</li></ol><p>密钥只放在服务端，不写入网页或备份。在线展示版不发送 AI 请求；未配置 AI 也能使用检测与记录功能。</p><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/AI_PLATFORM.md" target="_blank" rel="noopener">查看 DeepSeek 与通用平台配置示例</a></div></section>`;
 }
 
 function renderAbout(main) {
   main.innerHTML = `<section class="page-heading"><div><h1>项目说明</h1><p>功能说明、运行方式与开源许可。</p></div></section>
-  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.3.1</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和通用 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，使用蓝色主操作、标准表单与结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。暂不包含视频、摄像头和账户管理。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
+  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.4.0</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和通用 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>参考 Element UI 的后台界面风格，使用蓝色主操作、标准表单与结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。支持管理员开通账号、巡检大屏及操作引导。暂不包含视频和摄像头。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
 }
 
 let toastTimer;
@@ -711,9 +762,14 @@ function route() {
     return;
   }
   previousRoute = location.hash;
-  state.view = ["workspace", "history", "about", "guide"].includes(
-    location.hash.slice(1).split("?")[0],
-  )
+  state.view = [
+    "workspace",
+    "history",
+    "about",
+    "guide",
+    "dashboard",
+    "login",
+  ].includes(location.hash.slice(1).split("?")[0])
     ? location.hash.slice(1).split("?")[0]
     : "workspace";
   if (document.querySelector("#main")) render();
@@ -732,6 +788,28 @@ setInterval(() => {
   if (summary)
     summary.textContent = `待复查 ${state.history.filter((r) => matchesTask(r.followUp, "pending")).length} 条 · 今日及逾期 ${state.history.filter((r) => matchesTask(r.followUp, "today") || matchesTask(r.followUp, "overdue")).length} 条`;
 }, 30000);
-route();
-shell();
-checkService();
+window.addEventListener("fieldlens:login-required", () => {
+  if (!access.user) return;
+  access.expired = true;
+  const label = document.querySelector(".account-label");
+  if (label) label.textContent = "会话已过期，请重新登录";
+});
+window.addEventListener("fieldlens:guide-done", () =>
+  document.querySelector(".guide-welcome")?.remove(),
+);
+window.addEventListener("storage", (event) => {
+  if (event.key === "fieldlens.auth.changed") location.reload();
+  if (event.key === access.historyKey()) {
+    state.history = initialHistory();
+    if (state.view === "dashboard") render();
+  }
+});
+async function boot() {
+  app.innerHTML = '<p class="boot-status" role="status">正在打开禾镜…</p>';
+  await access.initialize();
+  state.history = initialHistory();
+  route();
+  shell();
+  checkService();
+}
+boot();

@@ -12,6 +12,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from werkzeug.exceptions import RequestEntityTooLarge
 from urllib.parse import urlsplit
 from .assistant import CompatibleAssistant, AssistantError, validate_context
+from .auth import install_auth
 
 Image.MAX_IMAGE_PIXELS = 25_000_000
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
@@ -58,6 +59,7 @@ def create_app(detector=None, assistant=None):
     engine = detector if detector is not None else YoloDetector()
     advisor = assistant if assistant is not None else CompatibleAssistant()
     assistant_lock = threading.Lock()
+    install_auth(app)
 
     @app.get("/api/assistant/status")
     def assistant_status():

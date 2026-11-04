@@ -1,3 +1,4 @@
+import { apiFetch } from "./access.js";
 import { assistantContext } from "./review-domain.js";
 import { downloadBlob } from "./exports.js";
 
@@ -38,7 +39,7 @@ export function attachAssistant(dialog, getRecord, apiEnabled) {
     $("#ai-check").disabled = true;
     setError("");
     try {
-      const response = await fetch("/api/assistant/status", {
+      const response = await apiFetch("/api/assistant/status", {
         signal: AbortSignal.timeout(4000),
       });
       if (!response.ok) throw Error("无法读取 AI 配置，请检查本地服务。");
@@ -92,7 +93,7 @@ export function attachAssistant(dialog, getRecord, apiEnabled) {
     $("#ai-answer").hidden = true;
     answer = null;
     try {
-      const response = await fetch("/api/assistant", {
+      const response = await apiFetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(snapshot),
