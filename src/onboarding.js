@@ -36,10 +36,10 @@ const steps = [
   },
   {
     title: "按需接入 AI 平台",
-    text: "检测记录 → 详情 → AI 辅助，可核对发送预览后整理复核要点。平台密钥由服务端配置。这里的操作引导不调用 AI，也不上传数据。",
-    target: ".guide-panel",
-    route: "guide",
-    action: "查看接入指南",
+    text: "AI 助手提供操作答疑和本地记录整理，无需配置。切换到平台 AI 后，可选择记录、检查配置并核对预览再发送。平台密钥由服务端配置；详情页的 AI 辅助仍保留。",
+    target: ".helper-layout",
+    route: "assistant",
+    action: "打开 AI 助手",
   },
 ];
 

@@ -62,7 +62,7 @@ export function reportFor(record) {
   return {
     ...record,
     application: "禾镜 FieldLens",
-    version: "1.7.0",
+    version: "1.8.0",
     notice:
       record.mode === "demo"
         ? "合成插画与预设标注，仅作交互演示，并非模型推理。"
