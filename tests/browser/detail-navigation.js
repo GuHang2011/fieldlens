@@ -10,7 +10,7 @@ async (page) => {
   const errors = [];
   p.on("pageerror", (error) => errors.push(error.message));
   try {
-    await p.goto("http://127.0.0.1:4176/");
+    await p.goto("http://127.0.0.1:4176/#workspace");
     await p.locator("#sample-top").click();
     await p.locator("#save").click();
     await p.getByRole("button", { name: "检测记录", exact: true }).click();

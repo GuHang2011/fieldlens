@@ -8,7 +8,7 @@
 
 拍照检测 · 界面换肤 · 区域复核 · 账号登录 · 巡检大屏 · AI 助手
 
-[完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [用户问题与修复](docs/USER_REVIEW.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
+[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.0) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-526b40)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES_Modules-c4d58b)
@@ -16,7 +16,7 @@
 
 </div>
 
-![禾镜工作台桌面截图](docs/workspace.png)
+![禾镜作物巡检工作台](public/home-workspace.webp)
 
 <details>
 <summary>查看示例检测结果</summary>
@@ -29,7 +29,7 @@
 
 禾镜 FieldLens 将图片、检测框、置信度与巡检记录组织在同一个工作台中，为作物叶片的辅助筛查提供可复核的视觉界面。它适合计算机视觉课程展示、农业视觉原型验证和个人项目作品集。
 
-本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。界面参考 Element UI 的常见后台布局，采用蓝色主操作、分组浅色侧栏、标准表单和结果列表。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示。样式独立实现，没有引入 Element UI / Element Plus 组件库。
+本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。v1.9.0 采用农业场景首页与简洁的业务布局，统一字号、表格、表单及多色状态。正文和操作以 14–16px 为主，保留浅色、青绿、深色与暖砂主题。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示。样式独立实现，没有引入组件库。参考与验证见 [界面设计](docs/PRODUCT_DESIGN.md)。
 
 **在线页面是交互演示，点击“加载示例”后使用原创合成插画与固定标注，不进行真实推理，不代表检测精度。** 本地模式可接入自己有权使用的 Ultralytics YOLO 目标检测权重，实际类别和效果取决于模型训练情况。普通 COCO 权重不能替代作物病害模型。
 
@@ -45,7 +45,7 @@
 
 | 能力 | 当前版本 |
 | --- | --- |
-| 原创视觉与品牌 | 标准后台布局、响应式表单与结果列表，示例插画按需加载 |
+| 视觉与品牌 | 农业场景首页、清晰的业务导航、分级字号与多色状态，四套主题 |
 | 图像导入 | JPG / PNG / WebP；选择或拖放；10 MB / 2500 万像素限制 |
 | 摄像头拍照 | 实时预览、摄像头选择、拍照确认与重拍；系统相机 / 照片回退 |
 | 图形化 YOLO 检测 | 本地 Python API，归一化检测框，自动处理 EXIF 方向 |

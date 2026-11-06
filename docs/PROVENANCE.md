@@ -18,11 +18,12 @@
 | --- | --- | --- |
 | 禾镜品牌、页面文案、布局与样式 | 本次开发新建 | AGPL-3.0-only |
 | `public/favicon.svg`、`public/specimen.svg` | 本次绘制的 SVG | AGPL-3.0-only；不使用第三方照片 |
+| `public/home-field*.webp` | Unsplash 农田风景摄影，裁剪为桌面/手机版 | 单独适用 Unsplash License，见第三方素材说明 |
 | 演示框与标签 | 人工设定的交互示例 | 明确标注为演示；不作为模型指标 |
 | 浏览器交互、记录、后端 API、测试 | 本次开发新建 | AGPL-3.0-only |
 | Vite、Flask、Pillow | 官方软件包 | 通过依赖管理器安装；保留各自许可 |
 | Ultralytics YOLO | 官方软件包，可选安装 | AGPL-3.0 / 商业许可，详见官方条款 |
-| 模型权重与真实图片 | 由使用者另行提供 | 不随仓库分发 |
+| 模型权重与真实检测样本 | 由使用者另行提供 | 不随仓库分发；首页摄影不是检测样本 |
 
 AGPL 完整文本来自 Ultralytics v8.3.178 仓库的 LICENSE（与 GNU AGPL v3 文本一致），版权仍属文本标明的自由软件基金会。本项目仅采用该许可，不表示获得 Ultralytics 或原项目作者的背书。
 

@@ -25,7 +25,7 @@ async (page) => {
     page.waitForFunction(
       () => !document.querySelector("#camera-shutter")?.disabled,
     );
-  await page.goto("http://127.0.0.1:4176/");
+  await page.goto("http://127.0.0.1:4176/#workspace");
   ok(
     (await page.evaluate(() => cameraTest.requests.length)) === 0,
     "no camera request during boot",
@@ -168,7 +168,7 @@ async (page) => {
   await page.waitForFunction(() => !document.querySelector(".camera-dialog"));
   ok(await stopped(), "navigation releases media");
 
-  await page.goto("http://127.0.0.1:4176/");
+  await page.goto("http://127.0.0.1:4176/#workspace");
   for (const theme of ["classic", "sand", "dark"]) {
     await page.locator("#ui-theme").selectOption(theme);
     await page.locator("#camera-open").click();

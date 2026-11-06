@@ -6,7 +6,7 @@ async (page) => {
   page.on("pageerror", (error) => errors.push(error.message));
   await page.clock.install();
   const base = "http://127.0.0.1:4176/";
-  await page.goto(base);
+  await page.goto(base + "#workspace");
   await page.locator("#sample-top").click();
   await page.locator("#inspection-note").fill("主题切换保留草稿");
   for (const theme of ["field", "dark", "classic"]) {
@@ -131,7 +131,7 @@ async (page) => {
   }
   await page.locator("#screen-settings-toggle").click();
   const liveUpdate = await page.context().newPage();
-  await liveUpdate.goto(base);
+  await liveUpdate.goto(base + "#workspace");
   await liveUpdate.locator("#sample-top").click();
   await liveUpdate.locator("#save").click();
   await page.waitForFunction(() =>
@@ -177,7 +177,7 @@ async (page) => {
   await page.locator("[data-details]").first().click();
   await page.locator("#record-notes").fill("跨标签主题切换保留详情草稿");
   const other = await page.context().newPage();
-  await other.goto(base);
+  await other.goto(base + "#workspace");
   await other.locator("#ui-theme").selectOption("dark");
   await page.waitForFunction(
     () => document.documentElement.dataset.uiTheme === "dark",

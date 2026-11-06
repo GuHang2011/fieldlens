@@ -2,7 +2,7 @@ async (page) => {
   const ok = (v, m) => {
     if (!v) throw Error(m);
   };
-  await page.goto("http://127.0.0.1:4176/");
+  await page.goto("http://127.0.0.1:4176/#workspace");
   await page.locator("#sample-top").click();
   await page.locator("#inspection-note").fill("换肤保留的巡检草稿");
   await page.locator("[data-skin-open]").click();

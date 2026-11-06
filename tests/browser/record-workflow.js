@@ -1,7 +1,7 @@
 async(page)=>{
   const checks=[];
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:4176/');
+  await page.goto('http://127.0.0.1:4176/#workspace');
   await page.evaluate(()=>localStorage.removeItem('fieldlens.history'));await page.reload();
   await page.evaluate(()=>{
     const original=URL.createObjectURL.bind(URL);

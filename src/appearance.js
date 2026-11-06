@@ -68,7 +68,7 @@ function openSkinPanel(opener) {
   skinDialog.className = "record-dialog skin-dialog";
   skinDialog.setAttribute("aria-labelledby", "skin-title");
   const descriptions = {
-    classic: "蓝色主操作，适合日常使用",
+    classic: "中性灰白与深绿主操作，适合日常使用",
     field: "浅绿底色，保留田野气息",
     dark: "深色背景，适合夜间查看",
     sand: "暖色背景，柔和的棕色主操作",

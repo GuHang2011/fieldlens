@@ -5,7 +5,7 @@ async (page) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   const base = "http://127.0.0.1:4176/";
-  await page.goto(base);
+  await page.goto(base + "#workspace");
   await page.evaluate(() => localStorage.removeItem("fieldlens.history"));
   await page.reload();
   await page.evaluate(() => {

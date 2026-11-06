@@ -7,7 +7,7 @@ async (page) => {
   const errors = [];
   p.on("pageerror", (e) => errors.push(e.message));
   try {
-    await p.goto("http://127.0.0.1:4176/");
+    await p.goto("http://127.0.0.1:4176/#workspace");
     await p
       .getByRole("button", { name: "加载示例并查看", exact: true })
       .click();

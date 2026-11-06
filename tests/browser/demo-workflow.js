@@ -13,7 +13,7 @@ async (page) => {
   });
   const records = () =>
     page.evaluate((k) => JSON.parse(sessionStorage.getItem(k)), key);
-  await page.goto(base);
+  await page.goto(base + "#workspace");
   await page.locator("#sample-top").click();
   await page.locator("#inspection-note").fill("个人记录保留");
   await page.locator("#save").click();
