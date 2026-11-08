@@ -16,12 +16,30 @@
 
 </div>
 
-![禾镜作物巡检工作台](public/home-workspace.webp)
+[![禾镜 v1.9.1 产品首页](docs/screenshots/v1.9.1-20261109/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.1)
+
+当前公开版本 v1.9.1，截图更新于 2026-11-09。下方业务截图使用预置演示案例；点击图片可查看原图。
 
 <details>
-<summary>查看示例检测结果</summary>
+<summary>查看检测工作台、记录管理与复核助手</summary>
 
-![示例检测结果](docs/detection.png)
+### 检测工作台
+
+预置案例与固定标注，仅展示检测、缩放及复核流程。
+
+[![检测工作台：叶片示例、检测区域和结果列表](docs/screenshots/v1.9.1-20261109/workspace.webp)](docs/screenshots/v1.9.1-20261109/workspace.webp)
+
+### 检测记录
+
+12 条演示巡检记录，支持筛选、复核、复查安排与报告导出。
+
+[![检测记录：筛选、复核状态与复查待办](docs/screenshots/v1.9.1-20261109/records.webp)](docs/screenshots/v1.9.1-20261109/records.webp)
+
+### 复核助手
+
+截图展示内置操作答疑，不调用语言模型；记录整理采用本地规则，平台 AI 为可选接入。
+
+[![复核助手：查询巡检报告导出步骤](docs/screenshots/v1.9.1-20261109/assistant.webp)](docs/screenshots/v1.9.1-20261109/assistant.webp)
 
 </details>
 
@@ -151,7 +169,9 @@ GitHub Pages 的「登录」页明确提供演示入口，不验证账号或收�
 
 左侧「数据大屏」可查看趋势、类别、地块和复查任务，支持近 7 / 30 天、来源筛选及全屏；右上角「操作引导」可重看六步流程。大屏不会自动生成假数据，引导也不会调用 AI。
 
-![巡检数据大屏，均为演示样例](docs/dashboard.png)
+[![巡检数据大屏，均为演示样例](docs/screenshots/v1.9.1-20261109/dashboard.webp)](docs/screenshots/v1.9.1-20261109/dashboard.webp)
+
+演示记录汇总；区域数量不代表患病率或模型精度。
 
 ## 大屏视距与 UI 切换
 
@@ -159,7 +179,7 @@ GitHub Pages 的「登录」页明确提供演示入口，不验证账号或收�
 
 数据大屏的「观看视距」提供标准桌面、远距投屏、超远会场三档。点击「专注展示」隐藏主导航，分为概览趋势和地块复查两屏；可手动切换，或开启每 15 秒轮播。Esc /「退出展示」恢复工作界面。字号、来源和日期设置在本机记忆，专注与轮播需手动开启。
 
-![远距投屏，全部为演示数据](docs/presentation-far.png)
+[![远距投屏：专注展示与概览趋势，全部为演示数据](docs/screenshots/v1.9.1-20261109/presentation.webp)](docs/screenshots/v1.9.1-20261109/presentation.webp)
 
 具体操作与截图见 [大屏展示和主题说明](docs/PRESENTATION.md)。
 
