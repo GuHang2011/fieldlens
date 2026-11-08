@@ -6,9 +6,9 @@
 
 **作物病害图像检测系统**
 
-拍照检测 · 界面换肤 · 区域复核 · 账号登录 · 巡检大屏 · AI 助手
+拍照检测 · 界面换肤 · 区域复核 · 账号登录 · 巡检大屏 · 复核助手（可选平台 AI）
 
-[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.0) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
+[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.1) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-526b40)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES_Modules-c4d58b)
@@ -30,6 +30,8 @@
 禾镜 FieldLens 将图片、检测框、置信度与巡检记录组织在同一个工作台中，为作物叶片的辅助筛查提供可复核的视觉界面。它适合计算机视觉课程展示、农业视觉原型验证和个人项目作品集。
 
 本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。v1.9.0 采用农业场景首页与简洁的业务布局，统一字号、表格、表单及多色状态。正文和操作以 14–16px 为主，保留浅色、青绿、深色与暖砂主题。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示。样式独立实现，没有引入组件库。参考与验证见 [界面设计](docs/PRODUCT_DESIGN.md)。
+
+v1.9.1 补充首页使用问答，统一“复核助手”入口。手机端操作答疑直接展示搜索，记录选择只在整理记录或平台提问时显示；切换标签保留当前问题和整理结果。DeepSeek 等兼容平台接口继续保留。
 
 **在线页面是交互演示，点击“加载示例”后使用原创合成插画与固定标注，不进行真实推理，不代表检测精度。** 本地模式可接入自己有权使用的 Ultralytics YOLO 目标检测权重，实际类别和效果取决于模型训练情况。普通 COCO 权重不能替代作物病害模型。
 
@@ -57,7 +59,7 @@
 | 逐区域复核 | 待确认、保留、疑似误检及说明；保留原始检测数据 |
 | 两次记录对比 | 样本属性、位置示意、区域数量和复核状态；模型/阈值/来源差异提示 |
 | 巡检报告 | 按筛选结果汇总、演示与模型分组、学院/课程字段、浏览器打印为 PDF |
-| AI 助手 | 独立页面；操作说明检索、复核清单、近 7 天概览、TXT 导出，接入平台后可针对记录提问 |
+| 复核助手 | 独立页面；操作说明检索、复核清单、近 7 天概览、TXT 导出，接入平台后可针对记录提问 |
 | AI 平台 | 服务端兼容 Chat Completions，可接 DeepSeek 等；文字预览、复核摘要、TXT 导出 |
 | 结果导出 | 标注 PNG、CSV、JSON；筛选记录导出；演示来源标识 |
 | 操作反馈 | 重复保存保护、清除图片、取消等待、服务状态与运行指南 |
@@ -99,9 +101,9 @@ npm run preview
 
 摄像头需要 HTTPS 或 localhost 及设备授权；不支持直接预览时，可用「系统相机 / 选择照片」。手机浏览器支持情况有差异。操作、限制和合成媒体测试截图见 [换肤与拍照说明](docs/CAMERA_AND_SKINS.md)。
 
-## AI 助手
+## 复核助手
 
-[直接体验助手](https://guhang2011.github.io/fieldlens/?demo=1#assistant)。侧栏「AI 助手」提供三个入口：操作答疑搜索内置说明；记录整理生成复核清单与近 7 天概览；平台 AI 对接服务端配置的 DeepSeek 等兼容接口。
+[直接体验助手](https://guhang2011.github.io/fieldlens/?demo=1#assistant)。侧栏「复核助手」提供三个入口：操作答疑搜索内置说明；记录整理生成复核清单与近 7 天概览；平台 AI 对接服务端配置的 DeepSeek 等兼容接口。
 
 公开演示可直接使用前两项，并明确标注内置帮助或本地规则，不伪装为模型回答。平台 AI 保留发送预览、取消等待与 TXT 导出，选中记录、刷新快照或离页会清除当前回答，迟到响应不会显示到新记录。详见 [助手说明与截图](docs/AI_ASSISTANT.md)。
 

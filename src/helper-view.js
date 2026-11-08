@@ -22,9 +22,9 @@ export function renderHelper(main, { getRecords, apiEnabled, scopeLabel }) {
     snapshot = null,
     result = "",
     disposeAI = () => {};
-  main.innerHTML = `<section class="page-heading"><div><h1>AI 助手</h1><p>查找操作说明，整理巡检记录；接入平台后可使用 AI 复核。</p></div><a class="button outlined" href="#guide">平台接入指南</a></section>
+  main.innerHTML = `<section class="page-heading"><div><h1>复核助手</h1><p>查找操作说明，整理巡检记录；平台 AI 作为可选接入。</p></div><a class="button outlined" href="#guide">查看平台接入</a></section>
   <div class="helper-layout"><aside class="panel helper-context"><div class="panel-heading"><h2>当前记录</h2><span class="badge">${esc(scopeLabel)}</span></div><div class="helper-context-body"><label class="field-label" for="helper-record">选择已保存的记录</label><select id="helper-record"></select><p id="helper-record-meta" class="field-help"></p><button class="button outlined" id="helper-refresh">重新读取记录</button><p id="helper-snapshot-note" class="field-help" role="status"></p><a class="text-button" href="#history">查看与编辑记录 →</a><div class="helper-context-note"><strong>按记录快照整理</strong><p>不会自动修改原始检测或复核意见。更换记录、重新读取或离开本页会清除当前回答；需要保留时请先导出。</p></div></div></aside>
-  <section class="panel helper-main"><div class="helper-tabs" role="tablist" aria-label="助手能力">${[
+  <section class="panel helper-main"><div class="helper-tabs" role="tablist" aria-label="复核助手能力">${[
     ["help", "操作答疑"],
     ["records", "记录整理"],
     ["platform", "平台 AI"],
@@ -38,6 +38,9 @@ export function renderHelper(main, { getRecords, apiEnabled, scopeLabel }) {
   <section class="helper-pane" role="tabpanel" id="helper-panel-records" aria-labelledby="helper-tab-records" hidden><div class="helper-section-title"><h2>整理复核事项</h2><span class="badge">本地规则 · 未调用 AI</span></div><p class="field-help">根据已保存的字段与人工标记生成清单；概览按当前空间近 7 天的记录创建日期统计。</p><div class="helper-actions"><button class="button primary" id="helper-review">生成复核清单</button><button class="button outlined" id="helper-overview">生成巡检概览</button></div><p id="helper-local-empty" class="helper-empty">选择一条记录生成清单，或查看当前空间的巡检概览。</p><section id="helper-local-answer" hidden><p class="field-help" id="helper-local-time" role="status"></p><pre id="helper-local-text"></pre><div class="helper-actions"><button class="button outlined" id="helper-export">导出整理结果 TXT</button><button class="text-button" id="helper-clear">清除结果</button><a class="text-button" href="#history">前往记录处理 →</a></div></section></section>
   <section class="helper-pane" role="tabpanel" id="helper-panel-platform" aria-labelledby="helper-tab-platform" hidden><div class="helper-section-title"><h2>针对记录提问</h2><span class="badge">DeepSeek 等兼容平台</span></div><p class="field-help">先选择一条记录，检查服务端配置并核对文字预览。每次请求独立回答，不携带前次问答。</p>${!apiEnabled ? '<div class="helper-platform-note">公开演示未连接 AI 平台。可先体验「操作答疑」和「记录整理」；真实 AI 请求需要部署后端并配置自己的平台。<a href="#guide">查看接入步骤 →</a></div>' : ""}<div id="helper-platform-host"></div></section></section></div>`;
   const $ = (selector) => main.querySelector(selector);
+  const layout = $(".helper-layout");
+  // Keep the tabs ahead of record controls in both visual and keyboard order.
+  layout.prepend($(".helper-tabs"));
   function clearResult() {
     result = "";
     $("#helper-local-text").textContent = "";
@@ -94,6 +97,8 @@ export function renderHelper(main, { getRecords, apiEnabled, scopeLabel }) {
   refresh();
   const tabs = [...main.querySelectorAll("[data-helper-tab]")];
   function selectTab(id, focus = false) {
+    layout.dataset.helperTab = id;
+    $(".helper-context").hidden = id === "help";
     for (const tab of tabs) {
       const active = tab.dataset.helperTab === id;
       tab.setAttribute("aria-selected", String(active));
@@ -116,6 +121,7 @@ export function renderHelper(main, { getRecords, apiEnabled, scopeLabel }) {
       selectTab(tabs[next].dataset.helperTab, true);
     };
   });
+  selectTab("help");
   function showHelp(topics) {
     $("#helper-help-status").textContent = topics.length
       ? `找到 ${topics.length} 条内置说明。`

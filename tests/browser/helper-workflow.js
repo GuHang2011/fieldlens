@@ -10,7 +10,13 @@ async (page) => {
   });
   const base = "http://127.0.0.1:4176/";
   await page.goto(base + "#assistant");
+  ok(await page.locator(".helper-context").isHidden(), "help needs no record selection");
+  await page.setViewportSize({ width: 390, height: 844 });
+  const searchBox = await page.locator("#helper-query").boundingBox();
+  ok(searchBox.y + searchBox.height <= 844, "mobile help search is visible without scrolling");
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator("#helper-tab-records").click();
+  ok(await page.locator(".helper-context").isVisible(), "records show the record selection");
   ok(
     await page.locator("#helper-review").isDisabled(),
     "empty record checklist disabled",
@@ -59,6 +65,11 @@ async (page) => {
     ),
     "rule output labeled",
   );
+  const checklist = await page.locator("#helper-local-text").innerText();
+  await page.locator("#helper-tab-help").click();
+  ok(await page.locator(".helper-context").isHidden(), "help hides unrelated record controls");
+  await page.locator("#helper-tab-records").click();
+  ok((await page.locator("#helper-local-text").innerText()) === checklist, "switching help preserves the checklist");
   const download = page.waitForEvent("download");
   await page.locator("#helper-export").click();
   const file = await download;

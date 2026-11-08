@@ -439,6 +439,18 @@
   .helper-layout {
     gap: 24px;
   }
+  .helper-layout[data-helper-tab="help"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .helper-layout > .helper-tabs {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 5px;
+    border: 1px solid var(--border-light);
+  }
+  .helper-layout > .helper-tabs button {
+    min-height: 44px;
+  }
   .helper-tabs {
     margin: 18px 20px 0;
     padding: 4px;
