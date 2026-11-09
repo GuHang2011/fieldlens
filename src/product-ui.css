@@ -274,8 +274,78 @@
     font-size: 11px;
     color: var(--muted);
   }
-  .workspace-task-summary {
-    margin: 12px 0 18px;
+  .workspace-overview {
+    display: grid;
+    grid-template-columns: 170px repeat(3, minmax(0, 1fr));
+    margin: 12px 0 24px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    background: var(--ui-surface);
+    overflow: hidden;
+  }
+  .workspace-overview-title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 18px 22px;
+    background: var(--ui-soft);
+  }
+  .workspace-overview-title strong {
+    font-size: 15px;
+  }
+  .workspace-overview-title > span,
+  .workspace-overview a small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .workspace-overview a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: center;
+    align-items: center;
+    gap: 7px 14px;
+    padding: 18px 22px;
+    border-left: 1px solid var(--border-light);
+  }
+  .workspace-overview a > span {
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+  .workspace-overview a strong {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    font-size: 30px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--tone-info);
+  }
+  .workspace-overview a:nth-of-type(2) strong {
+    color: var(--tone-success);
+  }
+  .workspace-overview a:last-child strong {
+    color: var(--tone-danger);
+  }
+  .workspace-overview a:hover {
+    background: var(--ui-soft);
+  }
+  .workspace-next {
+    margin: 0 18px 16px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--tone-info);
+    background: var(--tone-info-bg);
+    color: var(--tone-info);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .workspace-next strong,
+  .workspace-next > span {
+    display: block;
+  }
+  .workspace-next.is-saved {
+    border-color: var(--tone-success);
+    background: var(--tone-success-bg);
+    color: var(--tone-success);
   }
   .image-stage {
     border-radius: 12px;
@@ -343,15 +413,21 @@
     background: var(--ui-surface);
     box-shadow: none;
     padding: 4px 0;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
   }
   :root[data-ui-theme] .record-stats > .panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
     border: 0;
     border-right: 1px solid var(--border-light);
     border-radius: 0;
     background: transparent;
     box-shadow: none;
-    padding: 18px 24px;
+    padding: 16px 22px;
+    text-align: left;
+    cursor: pointer;
   }
   :root[data-ui-theme] .record-stats > .panel:last-child {
     border-right: 0;
@@ -361,19 +437,33 @@
     font-weight: 500;
     color: var(--text-primary);
     letter-spacing: -0.6px;
+    font-variant-numeric: tabular-nums;
+  }
+  :root[data-ui-theme] .record-stat:hover {
+    background: var(--ui-soft);
+  }
+  .record-stat .stat-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .record-stat .stat-copy small {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
   }
   .history-section-heading {
-    padding: 22px;
+    padding: 18px;
   }
   :root[data-ui-theme] :is(.history-filters, .advanced-filters) {
     background: var(--ui-surface);
   }
   .history-filters {
-    padding: 22px;
-    gap: 18px;
+    padding: 16px 18px;
+    gap: 14px;
   }
   .advanced-filters {
-    padding: 0 22px 20px;
+    padding: 0 18px 12px;
   }
   :root[data-ui-theme] #records-table th {
     color: var(--text-regular);
@@ -390,10 +480,10 @@
     background: var(--ui-soft);
   }
   #records-table :is(th, td) {
-    padding: 17px 22px;
+    padding: 14px 18px;
   }
   .task-shortcuts {
-    padding: 0 22px;
+    padding: 0 18px;
     gap: 6px;
     border: 0;
   }
@@ -408,6 +498,120 @@
     background: var(--ui-soft);
     color: var(--text-primary);
     box-shadow: none;
+  }
+  .record-list-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .record-selection-tools,
+  .record-checkbox,
+  .record-sort {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .record-selection-tools {
+    flex-wrap: wrap;
+  }
+  #records-scope {
+    color: var(--text-regular);
+  }
+  .record-checkbox {
+    min-height: 36px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .record-sort select {
+    width: auto;
+    min-height: 36px;
+    padding: 6px 28px 6px 10px;
+  }
+  .record-checkbox input,
+  .record-identity input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .record-identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .record-identity > input {
+    margin-top: 2px;
+  }
+  .record-identity > div {
+    min-width: 0;
+  }
+  :root[data-ui-theme] #records-table tbody tr.is-selected,
+  :root[data-ui-theme] #records-table tbody tr.is-selected:hover,
+  :root[data-ui-theme] #records-table tbody tr.is-selected td:last-child {
+    background: var(--tone-info-bg);
+  }
+  .active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 18px 14px;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    background: var(--tone-info-bg);
+    color: var(--tone-info);
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+  .filter-chip > span {
+    font-size: 18px;
+  }
+  .active-filters[hidden],
+  .workspace-next[hidden],
+  .record-selection-tools [hidden] {
+    display: none;
+  }
+  @media (min-width: 1350px) {
+    .workspace-grid {
+      grid-template-columns: minmax(0, 1fr) 250px 330px;
+      align-items: start;
+    }
+    .workspace-grid .inspector {
+      display: contents;
+    }
+  }
+  @media (max-width: 900px) {
+    .workspace-overview {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .workspace-overview-title {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+    }
+    .workspace-overview a {
+      padding: 14px 16px;
+    }
+    .workspace-overview a:first-of-type {
+      border-left: 0;
+    }
   }
   .badge {
     border-radius: 6px;
@@ -659,6 +863,18 @@
     }
   }
   @media (max-width: 650px) {
+    :root[data-ui-theme] .record-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .record-stat .stat-copy small {
+      display: none;
+    }
+    :root[data-ui-theme] .record-stats > .panel:nth-child(2) {
+      border-right: 0;
+    }
+    :root[data-ui-theme] .record-stats > .panel:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--border-light);
+    }
     :root[data-ui-theme] .sidebar {
       width: 100%;
       padding: 0;
@@ -806,6 +1022,7 @@
     --tone-success-bg: #eaf4ee;
     --tone-record: #66578b;
     --tone-record-bg: #f2eff8;
+    --tone-danger: #a44842;
   }
   :root[data-ui-theme="dark"] {
     --tone-info: #a6c9f3;
@@ -816,6 +1033,7 @@
     --tone-success-bg: #293c30;
     --tone-record: #cabced;
     --tone-record-bg: #383245;
+    --tone-danger: #f1aaa2;
   }
   body {
     font-size: 15px;
@@ -968,7 +1186,7 @@
     color: var(--tone-success);
   }
   :root[data-ui-theme] .record-stats > .panel:nth-child(4) strong {
-    color: var(--tone-record);
+    color: var(--tone-danger);
   }
   :root[data-ui-theme] .badge.warning {
     color: var(--tone-warning);
@@ -1058,6 +1276,42 @@
     }
   }
   @media (max-width: 650px) {
+    .workspace-overview a {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 14px 10px;
+      gap: 6px;
+    }
+    .workspace-overview a strong {
+      grid-column: 1;
+      grid-row: 2;
+      font-size: 28px;
+    }
+    .workspace-overview a small {
+      line-height: 1.6;
+    }
+    .record-list-controls {
+      padding: 12px;
+    }
+    .record-sort {
+      width: 100%;
+    }
+    .record-sort select {
+      flex: 1;
+      min-height: 42px;
+    }
+    .record-checkbox {
+      min-height: 44px;
+    }
+    .active-filters {
+      padding: 0 12px 12px;
+    }
+    .filter-chip {
+      min-height: 40px;
+    }
+    .record-stat .stat-copy small {
+      font-size: 12px;
+      line-height: 1.6;
+    }
     .topbar-actions .theme-control > span {
       display: none;
     }

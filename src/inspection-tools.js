@@ -146,11 +146,11 @@ export function reportHTML(records) {
     .join("")}`;
 }
 
-export function openReport(records) {
+export function openReport(records, { selected = false } = {}) {
   if (!records.length) return;
   const dialog = makeDialog("巡检报告预览", "report-dialog");
   dialog.querySelector(".dialog-body").innerHTML =
-    `<div class="report-controls"><label>学院 / 课程 / 单位（可选）<input id="report-institution" maxlength="100" placeholder="填写后显示在报告中"/></label><button class="button primary" id="print-report">打印 / 另存为 PDF</button><p class="field-help">报告使用当前筛选的全部 ${records.length} 条记录，包含其他分页。打印设置中可关闭浏览器页眉页脚。</p></div><div class="report-paper"><h1>禾镜 · 巡检报告</h1><p id="report-heading" hidden></p><p>生成时间：${esc(when(new Date().toISOString()))}</p>${reportHTML(records)}</div>`;
+    `<div class="report-controls"><label>学院 / 课程 / 单位（可选）<input id="report-institution" maxlength="100" placeholder="填写后显示在报告中"/></label><button class="button primary" id="print-report">打印 / 另存为 PDF</button><p class="field-help">${selected ? `报告仅使用已勾选的 ${records.length} 条记录。` : `报告使用当前筛选的全部 ${records.length} 条记录，包含其他分页。`}打印设置中可关闭浏览器页眉页脚。</p></div><div class="report-paper"><h1>禾镜 · 巡检报告</h1><p id="report-heading" hidden></p><p>生成时间：${esc(when(new Date().toISOString()))}</p>${reportHTML(records)}</div>`;
   dialog.querySelector("#report-institution").oninput = (e) => {
     const heading = dialog.querySelector("#report-heading");
     heading.textContent = e.target.value.trim();

@@ -8,7 +8,7 @@
 
 拍照检测 · 界面换肤 · 区域复核 · 账号登录 · 巡检大屏 · 复核助手（可选平台 AI）
 
-[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.1) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
+[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.2) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-526b40)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES_Modules-c4d58b)
@@ -16,9 +16,9 @@
 
 </div>
 
-[![禾镜 v1.9.1 产品首页](docs/screenshots/v1.9.1-20261109/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.1)
+[![禾镜 v1.9.2 产品首页](docs/screenshots/v1.9.2-20261110/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.2)
 
-当前公开版本 v1.9.1，截图更新于 2026-11-09。下方业务截图使用预置演示案例；点击图片可查看原图。
+当前公开版本 v1.9.2，截图更新于 2026-11-10。下方业务截图使用预置演示案例；点击图片可查看原图。
 
 <details>
 <summary>查看检测工作台、记录管理与复核助手</summary>
@@ -27,19 +27,19 @@
 
 预置案例与固定标注，仅展示检测、缩放及复核流程。
 
-[![检测工作台：叶片示例、检测区域和结果列表](docs/screenshots/v1.9.1-20261109/workspace.webp)](docs/screenshots/v1.9.1-20261109/workspace.webp)
+[![检测工作台：叶片示例、检测区域和结果列表](docs/screenshots/v1.9.2-20261110/workspace.webp)](docs/screenshots/v1.9.2-20261110/workspace.webp)
 
 ### 检测记录
 
-12 条演示巡检记录，支持筛选、复核、复查安排与报告导出。
+12 条演示巡检记录，支持待办入口、筛选标签、排序与跨页勾选。截图选中两条记录，报告、CSV 与对比使用所选范围。
 
-[![检测记录：筛选、复核状态与复查待办](docs/screenshots/v1.9.1-20261109/records.webp)](docs/screenshots/v1.9.1-20261109/records.webp)
+[![检测记录：筛选、复核状态与复查待办](docs/screenshots/v1.9.2-20261110/records.webp)](docs/screenshots/v1.9.2-20261110/records.webp)
 
 ### 复核助手
 
 截图展示内置操作答疑，不调用语言模型；记录整理采用本地规则，平台 AI 为可选接入。
 
-[![复核助手：查询巡检报告导出步骤](docs/screenshots/v1.9.1-20261109/assistant.webp)](docs/screenshots/v1.9.1-20261109/assistant.webp)
+[![复核助手：操作答疑、本地整理与可选平台 AI](docs/screenshots/v1.9.2-20261110/assistant.webp)](docs/screenshots/v1.9.2-20261110/assistant.webp)
 
 </details>
 
@@ -48,6 +48,8 @@
 禾镜 FieldLens 将图片、检测框、置信度与巡检记录组织在同一个工作台中，为作物叶片的辅助筛查提供可复核的视觉界面。它适合计算机视觉课程展示、农业视觉原型验证和个人项目作品集。
 
 本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。v1.9.0 采用农业场景首页与简洁的业务布局，统一字号、表格、表单及多色状态。正文和操作以 14–16px 为主，保留浅色、青绿、深色与暖砂主题。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示。样式独立实现，没有引入组件库。参考与验证见 [界面设计](docs/PRODUCT_DESIGN.md)。
+
+v1.9.2 参考 Linear 的筛选方式与 Ant Design 的表格选择交互，增加可移除的筛选标签、记录排序、跨页勾选及明确的报告范围。工作台待办可直接进入对应记录，宽屏并排显示图片、参数和结果，保存后提示下一步。默认保留最近保存顺序；排序不改动原记录。
 
 v1.9.1 补充首页使用问答，统一“复核助手”入口。手机端操作答疑直接展示搜索，记录选择只在整理记录或平台提问时显示；切换标签保留当前问题和整理结果。DeepSeek 等兼容平台接口继续保留。
 
@@ -76,7 +78,7 @@ v1.9.1 补充首页使用问答，统一“复核助手”入口。手机端操�
 | 备份恢复 | 完整 JSON 备份、单条报告导入、预览校验、去重与逐条冲突选择 |
 | 逐区域复核 | 待确认、保留、疑似误检及说明；保留原始检测数据 |
 | 两次记录对比 | 样本属性、位置示意、区域数量和复核状态；模型/阈值/来源差异提示 |
-| 巡检报告 | 按筛选结果汇总、演示与模型分组、学院/课程字段、浏览器打印为 PDF |
+| 巡检报告 | 所选记录或全部筛选结果汇总、演示与模型分组、学院/课程字段、浏览器打印为 PDF |
 | 复核助手 | 独立页面；操作说明检索、复核清单、近 7 天概览、TXT 导出，接入平台后可针对记录提问 |
 | AI 平台 | 服务端兼容 Chat Completions，可接 DeepSeek 等；文字预览、复核摘要、TXT 导出 |
 | 结果导出 | 标注 PNG、CSV、JSON；筛选记录导出；演示来源标识 |
@@ -169,7 +171,7 @@ GitHub Pages 的「登录」页明确提供演示入口，不验证账号或收�
 
 左侧「数据大屏」可查看趋势、类别、地块和复查任务，支持近 7 / 30 天、来源筛选及全屏；右上角「操作引导」可重看六步流程。大屏不会自动生成假数据，引导也不会调用 AI。
 
-[![巡检数据大屏，均为演示样例](docs/screenshots/v1.9.1-20261109/dashboard.webp)](docs/screenshots/v1.9.1-20261109/dashboard.webp)
+[![巡检数据大屏，均为演示样例](docs/screenshots/v1.9.2-20261110/dashboard.webp)](docs/screenshots/v1.9.2-20261110/dashboard.webp)
 
 演示记录汇总；区域数量不代表患病率或模型精度。
 
@@ -179,7 +181,7 @@ GitHub Pages 的「登录」页明确提供演示入口，不验证账号或收�
 
 数据大屏的「观看视距」提供标准桌面、远距投屏、超远会场三档。点击「专注展示」隐藏主导航，分为概览趋势和地块复查两屏；可手动切换，或开启每 15 秒轮播。Esc /「退出展示」恢复工作界面。字号、来源和日期设置在本机记忆，专注与轮播需手动开启。
 
-[![远距投屏：专注展示与概览趋势，全部为演示数据](docs/screenshots/v1.9.1-20261109/presentation.webp)](docs/screenshots/v1.9.1-20261109/presentation.webp)
+[![远距投屏：专注展示与概览趋势，全部为演示数据](docs/screenshots/v1.9.2-20261110/presentation.webp)](docs/screenshots/v1.9.2-20261110/presentation.webp)
 
 具体操作与截图见 [大屏展示和主题说明](docs/PRESENTATION.md)。
 

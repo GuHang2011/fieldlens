@@ -1,6 +1,6 @@
 {
   "name": "fieldlens",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "private": true,
   "type": "module",
   "description": "禾镜 FieldLens — a visual crop inspection workspace with optional YOLO inference",

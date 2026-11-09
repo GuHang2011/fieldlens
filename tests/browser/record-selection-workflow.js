@@ -1,0 +1,98 @@
+async (page) => {
+  const ok = (condition, message) => { if (!condition) throw Error(message); };
+  const base = "http://127.0.0.1:4176/";
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(base + "?demo=1#history");
+  await page.locator("#select-page").waitFor();
+  const original = await page.evaluate(() => sessionStorage.getItem("fieldlens.demo.session.v1"));
+  await page.evaluate(() => {
+    const create = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = (blob) => {
+      if (blob.type.startsWith("text/csv")) window.lastCSV = blob.text();
+      return create(blob);
+    };
+  });
+  await page.locator('[data-select-record="demo-case-01"]').check();
+  ok(await page.locator("#select-page").evaluate((el) => el.indeterminate), "page selection has partial state");
+  ok(await page.locator("#compare-records").isDisabled(), "one selected record cannot compare");
+  await page.locator("#next-page").click();
+  await page.locator('[data-select-record="demo-case-10"]').check();
+  ok((await page.locator("#records-scope").innerText()).includes("已选 2 条"), "selection survives pagination");
+  await page.locator("#report-records").click();
+  const report = page.getByRole("dialog", { name: "巡检报告预览" });
+  ok(await report.locator(".report-record").count() === 2, "report includes only two selected records");
+  ok((await report.innerText()).includes("仅使用已勾选的 2 条"), "report describes selected scope");
+  const reportText = await report.innerText();
+  ok(reportText.includes("演示叶片-01.svg") && reportText.includes("演示叶片-10.svg") && !reportText.includes("演示叶片-02.svg"), "report record identities match selection");
+  await report.locator("[data-close]").click();
+  await page.locator("#export-records").click();
+  const csv = await page.evaluate(() => window.lastCSV);
+  ok(csv.includes("演示叶片-01.svg") && csv.includes("演示叶片-10.svg") && !csv.includes("演示叶片-02.svg"), "CSV respects the same selected scope");
+  await page.locator("#compare-records").click();
+  const compare = page.getByRole("dialog", { name: "两次记录对比" });
+  ok(await compare.locator("#compare-a option").count() === 2, "comparison offers selected records only");
+  await compare.locator("[data-close]").click();
+  await page.locator("#record-sort").selectOption("due");
+  ok(await page.locator("[data-select-record]").first().getAttribute("data-select-record") === "demo-case-03", "earliest pending due date appears first");
+  ok((await page.locator("#records-scope").innerText()).includes("已选 2 条"), "sorting retains selection");
+  await page.locator("#record-query").fill("演示叶片-01");
+  ok((await page.locator("#records-scope").innerText()).includes("已选 1 条"), "filtered-out selection is removed");
+  await page.locator('[data-remove-filter="query"]').click();
+  ok(await page.locator("#record-query").inputValue() === "", "removing filter chip updates input");
+  ok((await page.locator("#records-scope").innerText()).includes("已选 1 条"), "removed hidden selection is not silently restored");
+  await page.locator("#select-matching").click();
+  ok((await page.locator("#records-scope").innerText()).includes("已选 12 条"), "select all matching includes other pages");
+  await page.locator("#clear-selection").click();
+  await page.locator("#report-records").click();
+  ok(await report.locator(".report-record").count() === 12, "no selection preserves original filtered report behavior");
+  await report.locator("[data-close]").click();
+  await page.locator("#record-sort").selectOption("oldest");
+  ok(await page.locator("[data-select-record]").first().getAttribute("data-select-record") === "demo-case-11", "oldest-first order");
+  await page.locator("#record-sort").selectOption("review");
+  ok((await page.locator("#records-table tbody tr").first().innerText()).includes("待复核"), "pending reviews first");
+  await page.locator('[data-record-stat="review"]').click();
+  ok(await page.locator("#record-review").inputValue() === "pending", "stat button applies review filter");
+  ok((await page.locator("#records-total").innerText()).includes("共 8 条"), "pending review total");
+  await page.locator('[data-record-stat="overdue"]').click();
+  ok(await page.locator("#record-review").inputValue() === "all", "stat view resets unrelated filters");
+  ok(await page.locator("[data-details]").count() === 1, "overdue stat filters accurately");
+  await page.locator(".advanced-filters summary").click();
+  await page.locator("#filter-from").fill("2030-01-01");
+  await page.locator("#filter-to").fill("2020-01-01");
+  ok(await page.locator("#filter-error").isVisible(), "invalid range visible");
+  ok(await page.locator("#report-records").isDisabled(), "invalid range cannot export stale selection");
+  await page.locator("#reset-filters").click();
+  await page.locator("#record-query").fill('<img src=x onerror="alert(1)">');
+  ok(await page.locator("#active-filters img").count() === 0, "filter chips escape user input");
+  await page.locator("#empty-reset").click();
+  ok(await page.locator("#active-filters").isHidden(), "empty-state recovery clears filters");
+  ok(await page.evaluate(() => sessionStorage.getItem("fieldlens.demo.session.v1")) === original, "list operations do not mutate record data");
+  await page.locator('[data-view="workspace"]').click();
+  await page.locator('.workspace-overview a[href="#history?review=pending"]').click();
+  ok(await page.locator("#record-review").inputValue() === "pending", "workspace review link opens correct view");
+  await page.locator('[data-view="workspace"]').click();
+  await page.locator("#sample-top").click();
+  ok((await page.locator("#workspace-next").innerText()).includes("核对并保存"), "detection next step");
+  await page.locator("#save").click();
+  ok((await page.locator("#workspace-next").innerText()).includes("本次记录已保存"), "saved state has next step");
+  await page.locator("#inspection-note").fill("再次修改");
+  ok((await page.locator("#workspace-next").innerText()).includes("核对并保存"), "edited record no longer claims saved");
+  let layouts = 0;
+  for (const width of [320, 390, 768, 1440, 1920]) {
+    for (const theme of ["classic", "field", "sand", "dark"]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto(base + "?demo=1#history");
+      await page.locator("#ui-theme").selectOption(theme);
+      await page.locator("#record-query").fill("演示");
+      await page.locator("[data-select-record]").first().check();
+      ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `selected history fits ${width}/${theme}`);
+      await page.locator('[data-view="workspace"]').click();
+      ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `workspace fits ${width}/${theme}`);
+      layouts++;
+    }
+  }
+  ok(!errors.length, errors.join("; "));
+  return `PASS: selected report/CSV/comparison, cross-page selection, filter scope, sorting, invalid dates, escaped chips, stat links, save feedback, ${layouts} theme/viewport cases`;
+}

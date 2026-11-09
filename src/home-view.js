@@ -41,12 +41,12 @@ export function renderHome(main, { apiEnabled, enterDemo }) {
     </section>
     <section class="home-workspace home-section" id="home-features" aria-labelledby="home-workspace-title">
       <div class="home-section-heading"><div><p class="home-eyebrow">图像检测</p><h2 id="home-workspace-title">图片和结果，<br>放在一起看。</h2></div><div><p>上传图片或用摄像头拍照，查看检测区域。<br>核对标注、补充备注，再保存这次观察。</p>${open("workspace", '打开图像检测 <span aria-hidden="true">›</span>')}</div></div>
-      <figure class="home-product"><img src="./home-workspace.webp" width="1440" height="960" loading="lazy" alt="禾镜检测工作台，左侧显示叶片示例与标注，右侧为检测参数和结果"/><figcaption>工作台界面 · 预设演示标注</figcaption></figure>
+      <figure class="home-product"><img src="./home-workspace.webp?v=1.9.2" width="1440" height="1080" loading="lazy" alt="禾镜检测工作台，左侧显示叶片示例与标注，右侧为检测参数和结果"/><figcaption>工作台界面 · 预设演示标注</figcaption></figure>
       <ol class="home-workflow"><li><span>01</span><strong>采集图片</strong><p>上传或拍照，补充地块信息。</p></li><li><span>02</span><strong>核对结果</strong><p>查看区域，记录人工意见。</p></li><li><span>03</span><strong>保存与复查</strong><p>安排下次复查，导出巡检报告。</p></li></ol>
     </section>
     <div class="home-feature-pair">
-      <section class="home-feature home-records"><p class="home-eyebrow">检测记录</p><h2>上次的观察，<br>这次接着看。</h2><p>按地块、日期和复核状态查找记录，<br>比较两次结果，安排复查。</p>${open("history", '查看检测记录 <span aria-hidden="true">›</span>')}<img src="./home-records.webp" width="1200" height="800" loading="lazy" alt="检测记录界面，展示预置案例的筛选、复核状态与复查待办"/></section>
-      <section class="home-feature home-screen"><p class="home-eyebrow">数据大屏</p><h2>巡检进展，<br>一屏看清。</h2><p>查看巡检趋势、地块分布和待办。<br>支持全屏、轮播和远距离展示。</p>${open("dashboard", '打开数据大屏 <span aria-hidden="true">›</span>')}<img src="./home-screen.webp" width="1200" height="800" loading="lazy" alt="数据大屏的预置演示趋势、类别分布和复查待办"/></section>
+      <section class="home-feature home-records"><p class="home-eyebrow">检测记录</p><h2>上次的观察，<br>这次接着看。</h2><p>按地块、日期查找记录，优先处理待办。<br>勾选需要的样本，再对比或生成报告。</p>${open("history", '查看检测记录 <span aria-hidden="true">›</span>')}<img src="./home-records.webp?v=1.9.2" width="1440" height="1080" loading="lazy" alt="新版检测记录界面：待办统计、跨页勾选、排序与所选记录报告"/></section>
+      <section class="home-feature home-screen"><p class="home-eyebrow">数据大屏</p><h2>巡检进展，<br>一屏看清。</h2><p>查看巡检趋势、地块分布和待办。<br>支持全屏、轮播和远距离展示。</p>${open("dashboard", '打开数据大屏 <span aria-hidden="true">›</span>')}<img src="./home-screen.webp?v=1.9.2" width="1440" height="1080" loading="lazy" alt="数据大屏的预置演示趋势、类别分布和复查待办"/></section>
     </div>
     <section class="home-assistant home-section"><div><p class="home-eyebrow">复核助手</p><h2>需要帮助时，<br>就在手边。</h2></div><div><p>查找操作说明，整理复核清单，查看近 7 天巡检概览。<br>需要时再接入 DeepSeek 等兼容平台，围绕记录提问。</p>${open("assistant", '打开复核助手 <span aria-hidden="true">›</span>')}<p class="home-fineprint">操作说明和记录整理采用本地规则；平台 AI 属于可选接入能力。</p></div></section>
     <section class="home-questions home-section" aria-labelledby="home-questions-title">
