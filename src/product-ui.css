@@ -1,9 +1,13 @@
 /* Shared product styling. Kept screen-only so printed inspection reports retain their layout. */
 @media screen {
   :root[data-ui-theme] {
-    font-family:
-      -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
-      "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-ui: "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Segoe UI", sans-serif;
+    --type-body: 16px;
+    --type-control: 15px;
+    --type-meta: 14px;
+    --type-small: 13px;
+    font-family: var(--font-ui);
+    line-height: 1.6;
     --primary: #426d55;
     --primary-light: #eaf0eb;
     --ui-accent: #315a43;
@@ -11,15 +15,15 @@
     --ui-link: #326146;
     --ui-surface: #fff;
     --ui-soft: #f5f5f3;
-    --ui-page: #f5f5f7;
-    --text-primary: #1d1d1f;
-    --text-regular: #626267;
-    --muted: #707077;
+    --ui-page: #f3f5f4;
+    --text-primary: #20342c;
+    --text-regular: #4d6057;
+    --muted: #64736b;
     --border: #d2d2d7;
     --border-light: #e5e5e8;
     --border-lighter: #ededf0;
     --fill-light: #f5f5f7;
-    --product-sidebar: #fafafa;
+    --product-sidebar: #fbfcfa;
     --product-shadow: 0 2px 8px #00000003;
     --screen-bg: #181c1a;
     --screen-surface: #222824;
@@ -80,7 +84,12 @@
   }
   body {
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
+  textarea, button, input, select {
+    font-family: inherit;
+  }
+  .navigation-toggle { display: none; }
   :root[data-ui-theme] .sidebar {
     width: 222px;
     background: var(--product-sidebar);
@@ -149,8 +158,8 @@
     stroke-width: 1.5;
   }
   .source-link {
-    margin-top: auto;
-    padding: 20px 4px;
+    margin: auto 12px 0;
+    padding: 16px 14px;
     color: var(--muted);
   }
   .sidebar-footer {
@@ -162,7 +171,7 @@
     margin-left: 222px;
   }
   :root[data-ui-theme] .topbar {
-    padding: 14px 32px;
+    padding: 10px 28px;
     background: var(--ui-surface);
     border-color: var(--border-light);
     min-height: 64px;
@@ -187,18 +196,20 @@
     padding: 5px 10px;
   }
   main {
-    padding: 36px 32px;
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 26px 28px;
   }
   .page-heading {
-    margin-bottom: 26px;
+    margin-bottom: 20px;
     align-items: center;
   }
   .page-heading h1 {
     font-size: 30px;
     font-weight: 600;
-    letter-spacing: -0.8px;
-    margin-bottom: 10px;
-    line-height: 1.25;
+    letter-spacing: 0;
+    margin-bottom: 6px;
+    line-height: 1.4;
   }
   .page-heading p {
     color: var(--text-regular);
@@ -207,9 +218,10 @@
   }
   .button {
     border-radius: 8px;
-    min-height: 38px;
-    padding: 9px 15px;
-    line-height: 1.3;
+    min-height: 42px;
+    padding: 9px 16px;
+    line-height: 1.4;
+    font-weight: 500;
   }
   :root[data-ui-theme] .outlined {
     background: var(--ui-surface);
@@ -228,7 +240,7 @@
     box-shadow: none;
   }
   .panel-heading {
-    padding: 18px 22px;
+    padding: 16px 20px;
     border-color: var(--border-lighter);
   }
   .panel-heading h2 {
@@ -263,9 +275,19 @@
     padding: 8px 2px;
   }
   .demo-session-banner {
-    font-size: 12px;
-    padding: 10px 32px;
+    font-size: var(--type-small);
+    padding: 8px 28px;
+    gap: 8px 16px;
   }
+  .demo-session-banner > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    min-width: 0;
+  }
+  .demo-session-banner > div strong { font-size: 14px; }
+  .demo-session-banner .text-button { font-size: 13px; }
   :root[data-ui-theme] .demo-session-banner strong {
     color: var(--text-primary);
     font-weight: 500;
@@ -277,7 +299,7 @@
   .workspace-overview {
     display: grid;
     grid-template-columns: 170px repeat(3, minmax(0, 1fr));
-    margin: 12px 0 24px;
+    margin: 0 0 20px;
     border: 1px solid var(--border-light);
     border-radius: 10px;
     background: var(--ui-surface);
@@ -297,7 +319,7 @@
   .workspace-overview-title > span,
   .workspace-overview a small {
     color: var(--muted);
-    font-size: 12px;
+    font-size: var(--type-small);
   }
   .workspace-overview a {
     display: grid;
@@ -425,7 +447,7 @@
     border-radius: 0;
     background: transparent;
     box-shadow: none;
-    padding: 16px 22px;
+    padding: 14px 20px;
     text-align: left;
     cursor: pointer;
   }
@@ -433,8 +455,8 @@
     border-right: 0;
   }
   :root[data-ui-theme] .record-stats > .panel strong {
-    font-size: 30px;
-    font-weight: 500;
+    font-size: 32px;
+    font-weight: 600;
     color: var(--text-primary);
     letter-spacing: -0.6px;
     font-variant-numeric: tabular-nums;
@@ -453,22 +475,22 @@
     font-weight: 400;
   }
   .history-section-heading {
-    padding: 18px;
+    padding: 14px 20px;
   }
   :root[data-ui-theme] :is(.history-filters, .advanced-filters) {
     background: var(--ui-surface);
   }
   .history-filters {
-    padding: 16px 18px;
-    gap: 14px;
+    padding: 0;
+    gap: 12px;
   }
   .advanced-filters {
-    padding: 0 18px 12px;
+    padding: 0;
   }
   :root[data-ui-theme] #records-table th {
     color: var(--text-regular);
     background: var(--ui-soft);
-    font-weight: 500;
+    font-weight: 600;
   }
   :root[data-ui-theme] #records-table tbody tr {
     background: var(--ui-surface);
@@ -480,7 +502,8 @@
     background: var(--ui-soft);
   }
   #records-table :is(th, td) {
-    padding: 14px 18px;
+    padding: 16px 18px;
+    vertical-align: middle;
   }
   .task-shortcuts {
     padding: 0 18px;
@@ -586,9 +609,9 @@
   .record-selection-tools [hidden] {
     display: none;
   }
-  @media (min-width: 1350px) {
+  @media (min-width: 1500px) {
     .workspace-grid {
-      grid-template-columns: minmax(0, 1fr) 250px 330px;
+      grid-template-columns: minmax(0, 1fr) 270px 340px;
       align-items: start;
     }
     .workspace-grid .inspector {
@@ -674,8 +697,12 @@
     font-weight: 500;
   }
   .helper-pane {
-    padding: 26px;
+    padding: 28px;
   }
+  .helper-layout[data-helper-tab="help"] {
+    max-width: 1080px;
+  }
+  main:has(.helper-layout[data-helper-tab="help"]) .page-heading { max-width: 1080px; }
   .helper-quick .button {
     padding: 8px 12px;
   }
@@ -864,16 +891,10 @@
   }
   @media (max-width: 650px) {
     :root[data-ui-theme] .record-stats {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
     .record-stat .stat-copy small {
       display: none;
-    }
-    :root[data-ui-theme] .record-stats > .panel:nth-child(2) {
-      border-right: 0;
-    }
-    :root[data-ui-theme] .record-stats > .panel:nth-child(-n + 2) {
-      border-bottom: 1px solid var(--border-light);
     }
     :root[data-ui-theme] .sidebar {
       width: 100%;
@@ -961,13 +982,7 @@
       padding: 14px 18px;
       border-radius: 0;
     }
-    .history-section-heading,
-    .history-filters {
-      padding: 18px 16px;
-    }
-    .advanced-filters {
-      padding: 0 16px 18px;
-    }
+    .history-section-heading { padding: 12px 16px; }
     .task-shortcuts {
       padding: 0 16px;
       gap: 4px;
@@ -1035,144 +1050,53 @@
     --tone-record-bg: #383245;
     --tone-danger: #f1aaa2;
   }
-  body {
-    font-size: 15px;
+  body { font-size: var(--type-body); }
+  :root[data-ui-theme] .sidebar nav button { font-size: 16px; }
+  .sidebar .nav-caption, .brand small, .source-link, .sidebar-footer { font-size: var(--type-small); }
+  .breadcrumb, .account-label, .topbar-actions .text-button, .theme-control,
+  .theme-control select, .theme-switcher > button { font-size: var(--type-meta); }
+  .page-heading p { font-size: var(--type-body); line-height: 1.7; }
+  .panel-heading h2, .history-section-heading h2, .helper-section-title h2 { font-size: 18px; }
+  .button, .text-button, .page-heading > .button, .record-toolbar .button,
+  .export-options .button, .image-toolbar .button, .page-actions .button,
+  .helper-quick .button, .helper-tabs button,
+  :root[data-ui-theme] .task-shortcuts .button { font-size: var(--type-control); }
+  .field-label, .box-switch, .history-filters label, .record-draft label,
+  .sample-fields label, .followup-fields label, #login-form label,
+  .advanced-filters summary, .sample-details summary { font-size: var(--type-meta); }
+  :root[data-ui-theme] :is(select, textarea, input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"])) {
+    font-size: var(--type-control);
+    line-height: 1.5;
   }
-  :root[data-ui-theme] .sidebar nav button {
-    font-size: 15px;
+  .empty-upload strong { font-size: 18px; }
+  .upload-hint, .field-help, .connection, .results-summary, .demo-note,
+  .storage-note, .record-note, .helper-context-note, .helper-platform-note,
+  .demo-provenance, .demo-boundary, .login-help, .login-mode-note,
+  .workspace-note, .viewer-controls > span, .detail-identity p,
+  .detail-save-state, .guide-welcome, .advanced-filters summary span,
+  .pagination, .history-tools, #task-overview, .table-mobile-hint {
+    font-size: var(--type-meta);
+    line-height: 1.7;
   }
-  .sidebar .nav-caption {
-    font-size: 12px;
+  .capability-banner span { font-size: var(--type-meta); }
+  .badge, .local-badge, .step-index, .image-corner, .demo-session-banner p,
+  .region-map figcaption, .page-footer, .skin-card small { font-size: var(--type-small); }
+  :root[data-ui-theme] #records-table :is(td, th),
+  :root[data-ui-theme] #records-table .record-actions .text-button { font-size: var(--type-control); }
+  :root[data-ui-theme] #records-table .record-note { font-size: var(--type-meta); }
+  .region-review :is(td, th), .region-review .record-note,
+  .helper-help-item p, .helper-empty, .demo-steps p,
+  .demo-notes p, .onboarding-dialog p { font-size: var(--type-body); line-height: 1.8; }
+  :root[data-ui-theme] .helper-help-item h3 { font-size: 18px; }
+  #helper-local-text, #ai-text { font-size: var(--type-body); line-height: 1.85; }
+  .description-list dt, .description-list dd, .guide-body p, .guide-body li {
+    font-size: var(--type-control);
+    line-height: 1.8;
   }
-  .brand small,
-  .source-link,
-  .sidebar-footer {
-    font-size: 12px;
-  }
-  .breadcrumb,
-  .account-label,
-  .topbar-actions .text-button,
-  .theme-control,
-  .theme-control select,
-  .theme-switcher > button {
-    font-size: 13px;
-  }
-  .page-heading p {
-    font-size: 15px;
-  }
-  .panel-heading h2,
-  .history-section-heading h2,
-  .helper-section-title h2 {
-    font-size: 17px;
-  }
-  .button,
-  .text-button,
-  .page-heading > .button,
-  .record-toolbar .button,
-  .export-options .button,
-  .image-toolbar .button,
-  .page-actions .button,
-  .helper-quick .button,
-  .helper-tabs button {
-    font-size: 14px;
-  }
-  :root[data-ui-theme] .task-shortcuts .button {
-    font-size: 14px;
-  }
-  .field-label,
-  .box-switch,
-  .history-filters label,
-  .record-draft label,
-  .sample-fields label,
-  .followup-fields label,
-  #login-form label,
-  .advanced-filters summary,
-  .sample-details summary {
-    font-size: 14px;
-  }
-  :root[data-ui-theme]
-    :is(
-      select,
-      textarea,
-      input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not(
-          [type="file"]
-        )
-    ) {
-    font-size: 14px;
-  }
-  .empty-upload strong {
-    font-size: 16px;
-  }
-  .upload-hint,
-  .field-help,
-  .connection,
-  .results-summary,
-  .demo-note,
-  .storage-note,
-  .record-note,
-  .helper-context-note,
-  .helper-platform-note,
-  .demo-provenance,
-  .demo-boundary,
-  .login-help,
-  .login-mode-note,
-  .workspace-note,
-  .viewer-controls > span,
-  .detail-identity p,
-  .detail-save-state,
-  .guide-welcome,
-  .advanced-filters summary span,
-  .pagination,
-  .history-tools,
-  #task-overview,
-  .table-mobile-hint {
-    font-size: 13px;
-    line-height: 1.75;
-  }
-  .workspace-task-summary > span,
-  .capability-banner span {
-    font-size: 13px;
-  }
-  .badge,
-  .local-badge,
-  .step-index,
-  .image-corner,
-  .demo-session-banner p,
-  .region-map figcaption,
-  .page-footer,
-  .skin-card small {
-    font-size: 12px;
-  }
-  :root[data-ui-theme] #records-table :is(td, th) {
-    font-size: 14px;
-  }
-  :root[data-ui-theme] #records-table .record-actions .text-button {
-    font-size: 14px;
-  }
-  :root[data-ui-theme] #records-table .record-note {
-    font-size: 13px;
-  }
-  .region-review :is(td, th),
-  .region-review .record-note,
-  .helper-help-item p,
-  .helper-empty,
-  .demo-steps p,
-  .demo-notes p,
-  .onboarding-dialog p {
-    font-size: 14px;
-    line-height: 1.85;
-  }
-  .helper-help-item h3 {
-    font-size: 16px;
-  }
-  #helper-local-text,
-  #ai-text {
-    font-size: 15px;
-    line-height: 1.9;
-  }
-  .detail-tabs button {
-    font-size: 14px;
-  }
+  .guide-body h3 { font-size: 18px; font-weight: 600; }
+  .guide-body pre, .setup-steps summary { font-size: var(--type-meta); }
+  .about-panel, .guide-panel { max-width: 1120px; }
+  .detail-tabs button { font-size: var(--type-control); }
   :root[data-ui-theme] .record-stats > .panel span {
     font-size: 14px;
   }
@@ -1324,9 +1248,7 @@
     .page-heading h1 {
       font-size: 28px;
     }
-    .page-heading p {
-      font-size: 14px;
-    }
+    .page-heading p { font-size: 15px; }
     :root[data-ui-theme]
       :is(
         select,
@@ -1378,6 +1300,145 @@
     .skin-options {
       gap: 10px;
     }
+  }
+  /* Record controls keep search first and secondary operations after the list. */
+  .history-filter-bar {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+    align-items: end;
+    gap: 10px 18px;
+    padding: 14px 20px 12px;
+  }
+  .record-search-row { display: flex; align-items: end; gap: 10px; min-width: 0; }
+  .record-search-label { display: grid; flex: 1; gap: 7px; min-width: 0; font-size: 14px; color: var(--text-regular); }
+  #record-query { width: 100%; min-width: 0; min-height: 42px; padding: 9px 12px; border: 1px solid var(--border); }
+  .record-filter-toggle { display: none; }
+  .record-filter-fields { display: contents; }
+  .history-filter-bar > .record-filter-fields > .history-filters { flex-wrap: nowrap; align-items: end; }
+  .history-filter-bar > .record-filter-fields > .history-filters label { min-width: 124px; flex: initial; }
+  .history-filter-bar .advanced-filters { grid-column: 1 / -1; }
+  .history-filter-bar .advanced-filters .history-filters { padding: 14px 0 0; flex-wrap: wrap; }
+  .history-filter-bar .advanced-filters summary { min-height: 28px; }
+  .history-filter-bar .history-filters input,
+  .history-filter-bar .history-filters select,
+  .history-filter-bar .history-filters .button { height: 42px; }
+  .record-backup-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 20px; border-top: 1px solid var(--border-light); background: var(--ui-soft); }
+  .record-backup-tools > div { display: grid; gap: 4px; }
+  .record-backup-tools strong { font-size: 15px; font-weight: 600; }
+  .record-backup-tools span { font-size: 14px; color: var(--text-regular); }
+  #records-table table { width: 100%; }
+  #records-table td:first-child strong { font-size: 16px; letter-spacing: .02em; }
+  #records-table td time { display: block; font-variant-numeric: tabular-nums; color: var(--text-primary); white-space: nowrap; }
+  #records-table td time small { display: block; margin-top: 3px; font-size: 14px; color: var(--muted); }
+  #records-table .record-note { margin-top: 4px; max-width: 260px; line-height: 1.6; }
+  #records-table .record-comment { max-width: 260px; }
+  .record-detection-count { color: var(--text-primary); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .record-detection-count small { font-size: 13px; font-weight: 400; color: var(--text-regular); }
+  #records-table .record-followup { white-space: normal; max-width: 180px; }
+  #records-table .record-actions .text-button { margin-right: 10px; min-height: 36px; }
+  #records-table .record-actions [data-details] { color: var(--ui-link); }
+  .record-stat .stat-copy > span { font-weight: 500; }
+  .record-stat .stat-copy small { font-size: 13px; }
+  .record-selection-tools { gap: 8px 12px; }
+  .record-list-controls { padding: 10px 20px; font-size: 14px; }
+  .record-sort, .record-checkbox { font-size: 14px; }
+  .workspace-overview a > span { font-size: 15px; }
+  .workspace-next { padding: 12px 14px; font-size: 14px; }
+  .result-row .result-label { font-size: 16px; }
+  .result-row strong { font-size: 16px; }
+  .guide-welcome { margin-top: 20px; }
+  .demo-banner-details { flex: 1; min-width: 0; }
+  .demo-banner-details summary { color: var(--tone-info); font-size: 14px; cursor: pointer; width: fit-content; }
+  .demo-banner-details p { max-width: 640px; }
+  :root[data-ui-theme] .demo-session-banner { background: var(--tone-info-bg); }
+  .demo-session-banner .text-button { color: var(--tone-info); }
+  @media (max-width: 1200px) and (min-width: 651px) {
+    .history-filter-bar { grid-template-columns: 1fr; }
+    .history-filter-bar > .record-filter-fields > .history-filters { justify-content: flex-start; }
+    .history-filter-bar > .record-filter-fields > .history-filters label { flex: 1; }
+  }
+  @media (max-width: 650px) {
+    :root[data-ui-theme] body:not(.home-view):not(.screen-focus) .sidebar { display: grid; grid-template-columns: 1fr auto; }
+    :root[data-ui-theme] .brand { height: 54px; padding: 0 16px; }
+    .brand small { display: none; }
+    .navigation-toggle { display: flex; align-items: center; gap: 7px; margin: 7px 10px; min-height: 40px; padding: 6px 10px; border: 0; border-radius: 6px; color: var(--text-regular); background: var(--ui-soft); font-size: 14px; }
+    .sidebar #primary-navigation { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-column: 1 / -1; gap: 0; padding: 0 8px 6px; overflow: visible; }
+    :root[data-ui-theme] .sidebar nav button { width: 100%; justify-content: center; padding: 8px 2px; font-size: 14px; min-height: 42px; border-radius: 6px; }
+    .sidebar:not(.navigation-expanded) [data-view="home"],
+    .sidebar:not(.navigation-expanded) [data-view="demo"],
+    .sidebar:not(.navigation-expanded) [data-view="guide"],
+    .sidebar:not(.navigation-expanded) [data-view="about"] { display: none; }
+    .sidebar.navigation-expanded [data-view="home"],
+    .sidebar.navigation-expanded [data-view="demo"],
+    .sidebar.navigation-expanded [data-view="guide"],
+    .sidebar.navigation-expanded [data-view="about"] { order: 2; }
+    .sidebar.navigation-expanded nav { row-gap: 6px; }
+    :root[data-ui-theme] .topbar { min-height: 52px; padding: 6px 16px; }
+    .topbar > .breadcrumb, .topbar .demo-account-label { display: none; }
+    .topbar-actions { width: 100%; justify-content: space-between; gap: 8px; }
+    .topbar-actions .text-button, .theme-switcher > button { font-size: 14px; }
+    :root[data-ui-theme] .demo-session-banner { padding: 8px 16px; gap: 8px 12px; flex-wrap: nowrap; align-items: baseline; }
+    .demo-banner-details summary { font-size: 13px; }
+    .demo-session-banner .text-button { font-size: 13px; }
+    .demo-banner-details[open] { flex-basis: 100%; }
+    .demo-session-banner:has(.demo-banner-details[open]) { flex-wrap: wrap; }
+    main { padding: 20px 16px; }
+    .page-heading { gap: 12px; margin-bottom: 16px; }
+    .page-heading h1 { font-size: 26px; }
+    .page-heading p { font-size: 15px; line-height: 1.7; }
+    :root[data-ui-theme] .record-stats > .panel { padding: 8px 4px; flex-direction: column; justify-content: center; gap: 4px; min-height: 78px; }
+    :root[data-ui-theme] .record-stats > .panel span { font-size: 14px; }
+    :root[data-ui-theme] .record-stats > .panel strong { font-size: 26px; }
+    :root[data-ui-theme] .record-stats { margin-bottom: 16px; }
+    .history-section-heading { flex-wrap: nowrap; padding: 12px 14px; gap: 8px; }
+    .history-section-heading h2 { font-size: 16px; white-space: nowrap; }
+    .history-section-heading .record-toolbar { display: flex; flex: 0 1 auto; width: auto; margin-left: auto; }
+    .record-toolbar .button { min-height: 40px; max-width: none; font-size: 14px; padding: 7px 10px; white-space: nowrap; }
+    .history-panel .task-shortcuts { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; padding: 0 8px; }
+    :root[data-ui-theme] .task-shortcuts .button { font-size: 14px; padding: 7px 3px; }
+    .history-panel #task-overview { display: none; }
+    .history-filter-bar { display: block; padding: 12px 14px; }
+    .record-search-label { font-size: 0; gap: 0; }
+    :root[data-ui-theme] #record-query { font-size: 16px; height: 44px; }
+    .record-filter-toggle { display: inline-flex; min-height: 44px; font-size: 14px; padding: 8px 12px; gap: 2px; }
+    .history-panel:not(.filters-expanded) .record-filter-fields { display: none; }
+    .history-panel.filters-expanded .record-filter-fields { display: block; padding-top: 14px; }
+    .history-panel.filters-expanded .history-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+    .history-filter-bar .history-filters label { min-width: 0; }
+    .history-filter-bar .history-filters select { min-width: 0; width: 100%; }
+    .history-filter-bar .history-filters .button { grid-column: 1 / -1; }
+    .history-filter-bar .advanced-filters { padding-top: 14px; }
+    .history-filter-bar .advanced-filters summary span { display: inline; margin-left: 4px; }
+    .active-filters { padding: 0 14px 12px; }
+    .record-list-controls { padding: 8px 14px; gap: 4px; }
+    .record-selection-tools { width: 100%; font-size: 13px; gap: 6px 10px; }
+    .record-checkbox { min-height: 36px; }
+    .record-sort { gap: 8px; font-size: 13px; }
+    .record-sort select { min-height: 40px; }
+    #records-table .table-scroll { padding: 12px; }
+    :root[data-ui-theme] #records-table tbody tr { padding: 14px; gap: 14px; border-radius: 8px; }
+    :root[data-ui-theme] #records-table td { padding: 0; }
+    :root[data-ui-theme] #records-table td:first-child { padding-bottom: 12px; }
+    #records-table td:first-child strong { font-size: 17px; }
+    #records-table td[data-label]::before { font-size: 13px; margin-bottom: 4px; }
+    :root[data-ui-theme] #records-table .record-comment { display: none; }
+    #records-table .record-note { max-width: none; font-size: 14px; }
+    #records-table td:last-child { padding-top: 8px; }
+    #records-table .record-actions .text-button { min-height: 44px; padding: 8px 6px; margin: 0; }
+    .record-backup-tools { padding: 16px; }
+    .workspace-overview a small { font-size: 12px; }
+    .workspace-overview a { padding: 12px; }
+    .workspace-overview a strong { font-size: 26px; }
+    .helper-search { flex-wrap: nowrap; }
+    .helper-search input { flex-basis: auto; }
+    .helper-search button { padding: 8px 12px; }
+    .helper-help-item p { font-size: 16px; }
+    .helper-quick .outlined { min-height: 48px; }
+    .helper-section-title { gap: 6px; }
+    .description-list { grid-template-columns: 1fr; }
+    .description-list dt { padding: 10px 14px 4px; border-bottom: 0; font-weight: 600; }
+    :root[data-ui-theme] .description-list dt { background: var(--ui-surface); color: var(--text-primary); }
+    .description-list dd { padding: 4px 14px 16px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .button {

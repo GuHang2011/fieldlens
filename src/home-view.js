@@ -13,8 +13,8 @@ export function renderHome(main, { apiEnabled, enterDemo }) {
     <section class="home-hero" aria-labelledby="home-title" id="home-content" tabindex="-1">
       <picture class="home-hero-media"><source media="(max-width: 650px)" srcset="./home-field-mobile.webp"/><img src="./home-field.webp" width="1920" height="1080" alt="夕阳下的农田与整齐的作物行列" fetchpriority="high"/></picture>
       <div class="home-hero-copy"><p class="home-eyebrow">禾镜 FieldLens · 作物视觉巡检</p>
-      <h1 id="home-title">田间巡检，<br>有图有记录。</h1>
-      <p class="home-intro">采集作物图片，核对检测区域，<br>记录复核意见与下次巡检安排。</p>
+      <h1 id="home-title">每次巡检，<br>留下一份记录。</h1>
+      <p class="home-intro">从一张作物图片开始，核对检测区域，<br>记下观察结果，安排下一次复查。</p>
       <div class="home-actions">${open("workspace", apiEnabled ? "开始检测" : "体验演示", "home-button")}<a class="home-link" href="#guide">了解如何使用 <span aria-hidden="true">›</span></a></div>
       <p class="home-caption">${apiEnabled ? "真实检测需配置作物模型，结果由人工复核。" : "无需账号 · 演示使用预置案例"}</p></div>
       <p class="home-photo-caption">田间场景摄影 · 非模型检测结果</p>
@@ -40,17 +40,17 @@ export function renderHome(main, { apiEnabled, enterDemo }) {
       <span><strong>报告导出</strong><small>PNG · CSV · JSON</small></span>
     </section>
     <section class="home-workspace home-section" id="home-features" aria-labelledby="home-workspace-title">
-      <div class="home-section-heading"><div><p class="home-eyebrow">图像检测</p><h2 id="home-workspace-title">图片和结果，<br>放在一起看。</h2></div><div><p>上传图片或用摄像头拍照，查看检测区域。<br>核对标注、补充备注，再保存这次观察。</p>${open("workspace", '打开图像检测 <span aria-hidden="true">›</span>')}</div></div>
-      <figure class="home-product"><img src="./home-workspace.webp?v=1.9.2" width="1440" height="1080" loading="lazy" alt="禾镜检测工作台，左侧显示叶片示例与标注，右侧为检测参数和结果"/><figcaption>工作台界面 · 预设演示标注</figcaption></figure>
+      <div class="home-section-heading"><div><p class="home-eyebrow">图像检测</p><h2 id="home-workspace-title">对照图片，核对结果。</h2></div><div><p>上传图片或用摄像头拍照，查看检测区域。<br>核对标注、补充备注，再保存这次观察。</p>${open("workspace", '打开图像检测 <span aria-hidden="true">›</span>')}</div></div>
+      <figure class="home-product"><img src="./home-workspace.webp?v=1.9.3" width="1440" height="1080" loading="lazy" alt="禾镜检测工作台，左侧显示叶片示例与标注，右侧为检测参数和结果"/><figcaption>工作台界面 · 预设演示标注</figcaption></figure>
       <ol class="home-workflow"><li><span>01</span><strong>采集图片</strong><p>上传或拍照，补充地块信息。</p></li><li><span>02</span><strong>核对结果</strong><p>查看区域，记录人工意见。</p></li><li><span>03</span><strong>保存与复查</strong><p>安排下次复查，导出巡检报告。</p></li></ol>
     </section>
     <div class="home-feature-pair">
-      <section class="home-feature home-records"><p class="home-eyebrow">检测记录</p><h2>上次的观察，<br>这次接着看。</h2><p>按地块、日期查找记录，优先处理待办。<br>勾选需要的样本，再对比或生成报告。</p>${open("history", '查看检测记录 <span aria-hidden="true">›</span>')}<img src="./home-records.webp?v=1.9.2" width="1440" height="1080" loading="lazy" alt="新版检测记录界面：待办统计、跨页勾选、排序与所选记录报告"/></section>
-      <section class="home-feature home-screen"><p class="home-eyebrow">数据大屏</p><h2>巡检进展，<br>一屏看清。</h2><p>查看巡检趋势、地块分布和待办。<br>支持全屏、轮播和远距离展示。</p>${open("dashboard", '打开数据大屏 <span aria-hidden="true">›</span>')}<img src="./home-screen.webp?v=1.9.2" width="1440" height="1080" loading="lazy" alt="数据大屏的预置演示趋势、类别分布和复查待办"/></section>
+      <section class="home-feature home-records"><p class="home-eyebrow">检测记录</p><h2>找到样本，继续跟进。</h2><p>按地块、日期查找记录，优先处理待办。<br>勾选需要的样本，再对比或生成报告。</p>${open("history", '查看检测记录 <span aria-hidden="true">›</span>')}<img src="./home-records.webp?v=1.9.3" width="1440" height="1080" loading="lazy" alt="新版检测记录界面：待办统计、跨页勾选、排序与所选记录报告"/></section>
+      <section class="home-feature home-screen"><p class="home-eyebrow">数据大屏</p><h2>巡检进展，一屏查看。</h2><p>查看巡检趋势、地块分布和待办。<br>支持全屏、轮播和远距离展示。</p>${open("dashboard", '打开数据大屏 <span aria-hidden="true">›</span>')}<img src="./home-screen.webp?v=1.9.3" width="1440" height="1080" loading="lazy" alt="数据大屏的预置演示趋势、类别分布和复查待办"/></section>
     </div>
-    <section class="home-assistant home-section"><div><p class="home-eyebrow">复核助手</p><h2>需要帮助时，<br>就在手边。</h2></div><div><p>查找操作说明，整理复核清单，查看近 7 天巡检概览。<br>需要时再接入 DeepSeek 等兼容平台，围绕记录提问。</p>${open("assistant", '打开复核助手 <span aria-hidden="true">›</span>')}<p class="home-fineprint">操作说明和记录整理采用本地规则；平台 AI 属于可选接入能力。</p></div></section>
+    <section class="home-assistant home-section"><div><p class="home-eyebrow">复核助手</p><h2>查操作，也整理记录。</h2></div><div><p>查找操作说明，整理复核清单，查看近 7 天巡检概览。<br>需要时再接入 DeepSeek 等兼容平台，围绕记录提问。</p>${open("assistant", '打开复核助手 <span aria-hidden="true">›</span>')}<p class="home-fineprint">操作说明和记录整理采用本地规则；平台 AI 属于可选接入能力。</p></div></section>
     <section class="home-questions home-section" aria-labelledby="home-questions-title">
-      <div><p class="home-eyebrow">使用前了解</p><h2 id="home-questions-title">从这里开始。</h2><p>先体验流程，再按需要接入模型和账号服务。</p><a class="home-link" href="#guide">查看完整指南 <span aria-hidden="true">›</span></a></div>
+      <div><p class="home-eyebrow">使用前了解</p><h2 id="home-questions-title">开始前，了解这些。</h2><p>先体验流程，再按需要接入模型和账号服务。</p><a class="home-link" href="#guide">查看完整指南 <span aria-hidden="true">›</span></a></div>
       <div class="home-question-list">
         <details><summary>在线演示可以体验哪些操作？</summary><p>无需账号或安装，使用 12 条初始案例练习检测结果查看、人工复核、复查安排、报告导出和大屏展示。图片与标注为预设数据，不执行真实识别；演示修改留在独立空间，可随时重置。</p>${open("demo", '进入演示中心 <span aria-hidden="true">›</span>')}</details>
         <details><summary>怎样检测自己拍摄的作物图片？</summary><p>部署 Python 服务并配置有授权的 YOLO 作物检测模型。上传或拍照确认后，点击「开始检测」提交图片。支持的作物与病害取决于模型，结果需要人工复核。公开演示页可预览自己的图片。</p><a class="home-link" href="#guide">查看模型部署步骤 <span aria-hidden="true">›</span></a></details>

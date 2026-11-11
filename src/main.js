@@ -127,7 +127,7 @@ const camera = createCamera({ onUsePhoto: (file) => acceptFile(file) });
 function shell() {
   app.innerHTML = `<aside class="sidebar">
     <a class="brand" href="#home" aria-label="禾镜首页"><img src="./favicon.svg" alt=""/><span>禾镜 <b>FieldLens</b><small>作物视觉巡检</small></span></a>
-    <nav aria-label="主导航">
+    <button type="button" class="navigation-toggle" id="navigation-toggle" aria-expanded="false" aria-controls="primary-navigation">更多菜单 <span aria-hidden="true">☰</span></button><nav id="primary-navigation" aria-label="主导航">
       <button data-view="home">${icon("leaf")}<span>首页</span></button>
       <div class="nav-caption">巡检工作</div>
       <button data-view="workspace">${icon("scan")}<span>图像检测</span></button>
@@ -140,16 +140,16 @@ function shell() {
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
-    <div class="sidebar-footer">FieldLens <span>v1.9.2</span></div>
+    <div class="sidebar-footer">FieldLens <span>v1.9.3</span></div>
   </aside>
-  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions">${themeControl("ui-theme")}<button class="text-button" id="onboarding-open">操作引导</button>${demoActive ? '<span class="account-label">演示访客 · 免登录</span>' : `<a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}`} <span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物视觉巡检工作台</footer></div>
+  <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions">${themeControl("ui-theme")}<button class="text-button" id="onboarding-open">操作引导</button>${demoActive ? '<span class="account-label demo-account-label">免登录演示</span>' : `<a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}`} <span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物视觉巡检工作台</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
   if (demoActive) {
     app
       .querySelector(".topbar")
       .insertAdjacentHTML(
         "afterend",
-        `<aside class="demo-session-banner" aria-label="当前演示空间"><div><strong>独立演示空间 · 预置案例为演示数据</strong><p id="demo-storage-status">${demoSession.status()}</p></div><a class="text-button" href="#demo">演示中心</a><button class="text-button" id="demo-exit">退出演示</button></aside>`,
+        `<aside class="demo-session-banner" aria-label="当前演示空间"><details class="demo-banner-details" ${/刷新可能丢失|缓存无效/.test(demoSession.status()) ? "open" : ""}><summary>预置演示 · 非真实检测</summary><p id="demo-storage-status">${demoSession.status()}</p></details><a class="text-button" href="#demo">演示说明</a><button class="text-button" id="demo-exit">退出演示</button></aside>`,
       );
     document.querySelector("#demo-exit").onclick = () => exitDemo();
   }
@@ -159,6 +159,26 @@ function shell() {
         location.hash = button.dataset.view;
       }),
   );
+  const navigation = app.querySelector(".sidebar");
+  const navigationToggle = app.querySelector("#navigation-toggle");
+  const closeNavigation = () => {
+    navigation.classList.remove("navigation-expanded");
+    navigationToggle.setAttribute("aria-expanded", "false");
+  };
+  navigationToggle.onclick = () => {
+    const expanded = navigationToggle.getAttribute("aria-expanded") !== "true";
+    navigation.classList.toggle("navigation-expanded", expanded);
+    navigationToggle.setAttribute("aria-expanded", String(expanded));
+  };
+  navigation.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && navigation.classList.contains("navigation-expanded")) {
+      closeNavigation();
+      navigationToggle.focus();
+    }
+  });
+  navigation.querySelectorAll("[data-view]").forEach((button) => {
+    button.addEventListener("click", () => { closeNavigation(); });
+  });
   bindThemeControls(app);
   document.querySelector("#onboarding-open").onclick = () => onboarding.open();
   document.querySelector("#logout")?.addEventListener("click", async () => {
@@ -273,9 +293,9 @@ function renderWorkspace(main) {
       matchesTask(r.followUp, "today") || matchesTask(r.followUp, "overdue"),
   ).length;
   const action = primaryAction();
-  main.innerHTML = `<section class="page-heading"><div><h1>图像检测</h1><p>上传作物图片，设置检测参数并查看结果。</p></div><button class="button outlined" id="sample-top" ${state.busy ? "disabled" : ""}>加载示例</button></section>
+  main.innerHTML = `<section class="page-heading"><div><h1>图像检测</h1><p>采集图片，核对区域，再保存本次观察。</p></div><button class="button outlined" id="sample-top" ${state.busy ? "disabled" : ""}>加载示例</button></section>
   ${!apiEnabled && !demoActive ? `<div class="capability-banner"><div><strong>在线演示</strong><span>示例为预设标注；自己的图片需连接本地 YOLO 检测。</span></div><div class="page-actions"><a class="button outlined" href="#demo">完整交互演示</a><a class="text-button" href="#guide">本地运行指南</a></div></div>` : ""}
-  ${!onboarding.completed() ? '<div class="guide-welcome"><span>第一次使用？跟着步骤完成检测与复核。</span><button class="text-button" id="start-guide">开始引导 →</button></div>' : ""}
+  ${!onboarding.completed() ? '<div class="guide-welcome"><span>初次使用，可跟着引导完成一次巡检。</span><button class="text-button" id="start-guide">开始引导 →</button></div>' : ""}
   <section class="workspace-overview" aria-label="巡检待办"><div class="workspace-overview-title"><strong>巡检待办</strong><span>${demoActive ? "当前演示空间" : "当前浏览器记录"}</span></div><a href="#history?review=pending"><span>待复核</span><strong>${state.history.filter((r) => !r.reviewed).length}</strong><small>核对检测结果 <span aria-hidden="true">↗</span></small></a><a href="#history?task=pending" aria-label="查看复查待办"><span>待复查</span><strong>${pending}</strong><small>跟进巡检安排 <span aria-hidden="true">↗</span></small></a><a href="#history?task=overdue"><span>已逾期</span><strong>${state.history.filter((r) => matchesTask(r.followUp, "overdue")).length}</strong><small>今日及逾期共 ${due} 条 <span aria-hidden="true">↗</span></small></a></section>
   <div class="workspace-grid"><section class="panel image-panel"><div class="panel-heading"><div><h2><span class="step-index">01</span> 检测图片</h2>${state.image ? `<span class="badge">${state.mode === "demo" ? "演示图片" : "已载入"}</span>` : ""}</div><label class="box-switch"><input type="checkbox" id="show-boxes" ${state.boxes ? "checked" : ""}/> 显示检测框</label></div>
   <div class="image-stage ${state.image ? "has-image" : "is-empty"}" id="dropzone">${state.image ? `<div class="image-wrap"><img id="specimen" src="${escape(state.image)}" alt="${escape(state.name)}"/><svg id="box-layer" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="检测区域标注"></svg></div><div class="image-corner">${state.mode === "demo" ? "演示图片 · 预设标注" : "图片预览"}</div>` : `<button class="empty-upload" id="empty-upload" ${state.busy ? "disabled" : ""}>${icon("upload")}<strong>将图片拖到此处，或<span>点击上传</span></strong><span class="upload-hint">支持 JPG、PNG、WebP，单张不超过 10 MB</span></button>`}<div class="scan-line" ${state.busy ? "" : "hidden"}></div></div>
@@ -287,6 +307,8 @@ function renderWorkspace(main) {
   <div class="range-heading"><label for="threshold">置信度阈值</label><output id="threshold-output">${Math.round(state.threshold * 100)}%</output></div><input id="threshold" type="range" min="10" max="99" value="${Math.round(state.threshold * 100)}" ${state.busy ? "disabled" : ""}/><div class="range-labels"><span>10%</span><span>99%</span></div><p class="field-help">低于阈值的结果不显示。模型检测调整参数后需重新运行。</p><button class="button primary" id="detect" ${action.disabled ? "disabled" : ""}>${icon("scan")} ${action.label}</button>${state.busy ? '<button class="text-button" id="cancel-detection">取消等待</button>' : state.mode === "model" && state.status !== "ready" ? '<a class="setup-link" href="#guide">查看环境配置与模型接入步骤</a>' : ""}<p class="error" id="error" role="alert" ${state.error ? "" : "hidden"}>${escape(state.error)}</p></div></section>
   <section class="panel results"><div class="panel-heading"><h2><span class="step-index">03</span> 检测结果</h2><span class="badge" id="result-count"></span></div><div id="results-summary" class="results-summary" hidden></div><div id="results-body"></div><div id="workspace-next" class="workspace-next" role="status" hidden></div><div class="record-draft"><label for="inspection-note">记录备注（可选）</label><textarea id="inspection-note" maxlength="1000" rows="2" placeholder="采集地点、样本编号或待复核事项">${escape(state.notes)}</textarea></div><div class="results-footer export-options"><button id="export-image" class="button outlined">导出标注图</button><button id="export-csv" class="button outlined">CSV</button><button id="export" class="button outlined">${icon("download")} 导出 JSON</button><button id="save" class="button primary">保存记录</button></div></section></aside></div>
   <p class="workspace-note">检测结果仅供参考，请结合实际情况复核。</p>`;
+  const welcome = main.querySelector(".guide-welcome");
+  if (welcome) main.querySelector(".workspace-grid").insertAdjacentElement("afterend", welcome);
   main
     .querySelector("#start-guide")
     ?.addEventListener("click", () => onboarding.open());
@@ -826,7 +848,11 @@ function persistRecords(records) {
   try {
     recordStorage().setItem("fieldlens.history", JSON.stringify(records));
     const demoStatus = document.querySelector("#demo-storage-status");
-    if (demoStatus) demoStatus.textContent = demoSession.status();
+    if (demoStatus) {
+      demoStatus.textContent = demoSession.status();
+      if (/刷新可能丢失|缓存无效/.test(demoSession.status()))
+        demoStatus.closest("details").open = true;
+    }
     const id = `${state.resultId}-${Math.round(state.threshold * 100)}`;
     const previous = state.history.find((record) => record.id === id);
     const updated = records.find((record) => record.id === id);
@@ -894,7 +920,7 @@ $env:FIELDLENS_MODEL = 'D:\models\crop-detect.pt'
 
 function renderAbout(main) {
   main.innerHTML = `<section class="page-heading"><div><h1>项目说明</h1><p>功能说明、运行方式与开源许可。</p></div></section>
-  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.9.2</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和可选的平台 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>农业场景首页与简洁的业务布局；正文和主要操作使用 14–16px，信息与状态分色。提供浅色、青绿、深色、暖砂及跟随系统换肤，保留标准表单和结果列表。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>单张图片检测。支持逐区域复核、两次记录数据对比、打印报告及通用 AI 平台辅助。支持管理员开通账号、巡检大屏及操作引导。复核助手提供操作答疑、本地复核清单、巡检概览与兼容平台问答。支持摄像头拍照后检测，暂不包含连续视频检测。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
+  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.9.3</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和可选的平台 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>首页介绍巡检流程，工作台集中处理图片、结果与记录。支持浅色、青绿、深色、暖砂及跟随系统换肤；手机可拍照、查记录和处理复查待办。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>支持单张图片或拍照检测、人工复核、记录对比和报告导出。可用巡检大屏展示进度，或通过复核助手查操作、整理记录。真实账号由管理员开通；暂不支持连续视频检测。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
 }
 
 let toastTimer;
