@@ -80,13 +80,15 @@ export function createAccess(apiEnabled) {
     location.reload();
   };
   access.renderLogin = (main) => {
+    const controller = new AbortController();
+    const dispose = () => controller.abort();
     const signedIn = access.user && !access.expired;
     main.innerHTML = `<section class="login-layout"><div class="login-story"><span class="login-eyebrow">FIELDLENS / 禾镜</span><h1>把每次观察<br>留在巡检记录里。</h1><p>检测图片、核查区域、安排复查。<br>从一次记录，接到下一次巡检。</p><div class="login-specimen"><img src="./specimen.svg" alt="原创植物示意插画"/><span>作物视觉巡检工作台</span></div></div><section class="login-card" aria-labelledby="login-title"><div class="login-brand"><img src="./favicon.svg" alt=""/><strong>禾镜 FieldLens</strong></div><h2 id="login-title">${signedIn ? "当前账号" : "欢迎使用"}</h2><p class="field-help">${signedIn ? `已登录为 ${esc(access.user.name)}（${esc(access.user.username)}）` : apiEnabled ? "使用管理员分配的账号登录。" : "在线展示可直接体验，真实账号登录需部署服务。"}</p>${signedIn ? '<a class="button primary" href="#workspace">返回工作台</a>' : `<form id="login-form"><label for="login-username">账号</label><input id="login-username" name="username" autocomplete="username" maxlength="40" required ${!apiEnabled || !access.enabled ? "disabled" : ""}/><label for="login-password">密码</label><div class="password-field"><input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="128" required ${!apiEnabled || !access.enabled ? "disabled" : ""}/><button type="button" id="password-toggle" aria-label="显示密码" ${!apiEnabled || !access.enabled ? "disabled" : ""}>显示</button></div><p class="login-help">账号开通、停用或密码重置，请联系管理员。</p><p id="login-error" class="error" role="alert" hidden></p><button class="button primary" id="login-submit" type="submit" ${!access.enabled ? "disabled" : ""}>登录工作台</button></form>`}<div class="login-mode-note">${access.enabled ? "账号分别使用本机记录空间；记录不会自动跨设备同步。" : apiEnabled ? (access.unavailable ? "登录服务暂时无法连接。请检查服务后重试。" : "当前服务未开启账号验证。管理员可按部署说明启用。") : "GitHub Pages 为静态演示，不验证账号或收集密码。"}</div><div class="login-links">${!access.enabled ? '<a class="button outlined" href="#workspace">进入演示工作台</a>' : ""}${apiEnabled ? '<button class="text-button" id="retry-session">重新检查登录服务</button>' : ""}<a class="text-button" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/ACCOUNTS_AND_SCREEN.md" target="_blank" rel="noopener">账号部署说明 ↗</a></div></section></section>`;
     main
       .querySelector("#retry-session")
       ?.addEventListener("click", () => location.reload());
     const form = main.querySelector("#login-form");
-    if (!form) return;
+    if (!form) return dispose;
     const password = main.querySelector("#login-password");
     main.querySelector("#password-toggle").onclick = (event) => {
       const shown = password.type === "password";
@@ -111,16 +113,23 @@ export function createAccess(apiEnabled) {
             username: main.querySelector("#login-username").value.trim(),
             password: password.value,
           }),
-          signal: AbortSignal.timeout(10000),
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]),
         });
-        const data = await response.json();
-        if (!response.ok || !data.user?.id)
-          throw Error(data.error || "登录失败，请重试");
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          throw Error("登录服务暂不可用，请稍后重试或联系管理员。");
+        }
+        if (controller.signal.aborted) return;
+        if (!response.ok || typeof data?.user?.id !== "string" || !data.user.id)
+          throw Error(typeof data?.error === "string" ? data.error : "登录服务未完成验证，请重试。");
         password.value = "";
         notifySession();
         location.hash = "workspace";
         location.reload();
       } catch (e) {
+        if (controller.signal.aborted) return;
         error.textContent =
           e.name === "TimeoutError"
             ? "登录超时，请重试。"
@@ -133,6 +142,7 @@ export function createAccess(apiEnabled) {
         button.textContent = "登录工作台";
       }
     };
+    return dispose;
   };
   return access;
 }

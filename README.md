@@ -8,7 +8,7 @@
 
 拍照检测 · 界面换肤 · 区域复核 · 账号登录 · 巡检大屏 · 复核助手（可选平台 AI）
 
-[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.3) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
+[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.4) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-526b40)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES_Modules-c4d58b)
@@ -16,9 +16,9 @@
 
 </div>
 
-[![禾镜 v1.9.3 产品首页](docs/screenshots/v1.9.3-20261111/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.3)
+[![禾镜 v1.9.4 产品首页](docs/screenshots/v1.9.4-20261113/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.4)
 
-当前公开版本 v1.9.3，截图更新于 2026-11-11。下方业务截图使用预置演示案例；点击图片可查看原图。
+当前公开版本 v1.9.4，截图更新于 2026-11-13。下方业务截图使用预置演示案例；点击图片可查看原图。
 
 <details>
 <summary>查看检测工作台、记录管理与复核助手</summary>
@@ -27,19 +27,19 @@
 
 预置案例与固定标注，仅展示检测、缩放及复核流程。
 
-[![检测工作台：叶片示例、检测区域和结果列表](docs/screenshots/v1.9.3-20261111/workspace.webp)](docs/screenshots/v1.9.3-20261111/workspace.webp)
+[![检测工作台：叶片示例、检测区域和结果列表](docs/screenshots/v1.9.4-20261113/workspace.webp)](docs/screenshots/v1.9.4-20261113/workspace.webp)
 
 ### 检测记录
 
 12 条演示巡检记录，支持待办入口、筛选标签、排序与跨页勾选。截图选中两条记录，报告、CSV 与对比使用所选范围。
 
-[![检测记录：筛选、复核状态与复查待办](docs/screenshots/v1.9.3-20261111/records.webp)](docs/screenshots/v1.9.3-20261111/records.webp)
+[![检测记录：筛选、复核状态与复查待办](docs/screenshots/v1.9.4-20261113/records.webp)](docs/screenshots/v1.9.4-20261113/records.webp)
 
 ### 复核助手
 
 截图展示内置操作答疑，不调用语言模型；记录整理采用本地规则，平台 AI 为可选接入。
 
-[![复核助手：操作答疑、本地整理与可选平台 AI](docs/screenshots/v1.9.3-20261111/assistant.webp)](docs/screenshots/v1.9.3-20261111/assistant.webp)
+[![复核助手：操作答疑、本地整理与可选平台 AI](docs/screenshots/v1.9.4-20261113/assistant.webp)](docs/screenshots/v1.9.4-20261113/assistant.webp)
 
 </details>
 
@@ -47,7 +47,9 @@
 
 禾镜 FieldLens 将图片、检测框、置信度与巡检记录组织在同一个工作台中，为作物叶片的辅助筛查提供可复核的视觉界面。它适合计算机视觉课程展示、农业视觉原型验证和个人项目作品集。
 
-本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。v1.9.0 采用农业场景首页与简洁的业务布局，统一字号、表格、表单及多色状态。正文 16px、主要操作与表格 15px、辅助文字 14px，保留浅色、青绿、深色与暖砂主题。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示。样式独立实现，没有引入组件库。参考与验证见 [界面设计](docs/PRODUCT_DESIGN.md)。
+本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。v1.9.0 采用农业场景首页与简洁的业务布局，统一字号、表格、表单及多色状态。正文 16px、主要操作与表格 15px、辅助文字 14px，保留浅色、青绿、深色与暖砂主题。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示，横屏等矮视口改为弹窗整体滚动。样式独立实现，没有引入组件库。参考与验证见 [界面设计](docs/PRODUCT_DESIGN.md)。
+
+v1.9.4 完善上线前的异常处理：检测到其他标签页修改或删除记录时，保留当前草稿并阻止旧详情覆盖，支持先导出再重新读取；手机翻页定位到新列表。登录失败提供中文提示，离页或重新读取记录时清理待完成的登录与 AI 请求。详见 [本次修复与验证](docs/RELEASE_1.9.4.md)。
 
 v1.9.3 调整阅读层级和手机布局：统一中文界面字体与行高，精简首页及工作台说明；手机保留四个常用入口，其他菜单按需展开。记录页默认显示搜索，筛选可展开，备份移到列表下方。390px 浏览器视口下，第一条记录从约 1368px 提前到 765px。完整记录、复核、报告与可选 AI 接入继续可用。
 
@@ -173,7 +175,7 @@ GitHub Pages 的「登录」页明确提供演示入口，不验证账号或收�
 
 左侧「数据大屏」可查看趋势、类别、地块和复查任务，支持近 7 / 30 天、来源筛选及全屏；右上角「操作引导」可重看六步流程。大屏不会自动生成假数据，引导也不会调用 AI。
 
-[![巡检数据大屏，均为演示样例](docs/screenshots/v1.9.3-20261111/dashboard.webp)](docs/screenshots/v1.9.3-20261111/dashboard.webp)
+[![巡检数据大屏，均为演示样例](docs/screenshots/v1.9.4-20261113/dashboard.webp)](docs/screenshots/v1.9.4-20261113/dashboard.webp)
 
 演示记录汇总；区域数量不代表患病率或模型精度。
 
@@ -183,7 +185,7 @@ GitHub Pages 的「登录」页明确提供演示入口，不验证账号或收�
 
 数据大屏的「观看视距」提供标准桌面、远距投屏、超远会场三档。点击「专注展示」隐藏主导航，分为概览趋势和地块复查两屏；可手动切换，或开启每 15 秒轮播。Esc /「退出展示」恢复工作界面。字号、来源和日期设置在本机记忆，专注与轮播需手动开启。
 
-[![远距投屏：专注展示与概览趋势，全部为演示数据](docs/screenshots/v1.9.3-20261111/presentation.webp)](docs/screenshots/v1.9.3-20261111/presentation.webp)
+[![远距投屏：专注展示与概览趋势，全部为演示数据](docs/screenshots/v1.9.4-20261113/presentation.webp)](docs/screenshots/v1.9.4-20261113/presentation.webp)
 
 具体操作与截图见 [大屏展示和主题说明](docs/PRESENTATION.md)。
 

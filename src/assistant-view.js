@@ -156,6 +156,7 @@ export function attachAssistant(
     alive = false;
     request?.abort();
     statusRequest?.abort();
+    dialog.removeEventListener("close", dispose);
     observer.disconnect();
   };
   const observer = new MutationObserver(() => {

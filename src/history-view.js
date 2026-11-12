@@ -91,6 +91,12 @@ export function renderHistoryPage(
   };
   const actionRecords = () => filtered().filter((r) => !selected.size || selected.has(r.id));
   const dialog = main.querySelector("#record-dialog");
+  main.querySelector(".record-list-controls").insertAdjacentHTML(
+    "beforebegin",
+    '<p id="records-update" class="record-update" role="status" hidden>记录已在其他标签页更新，列表已同步。当前筛选和仍在范围内的勾选已保留。</p>',
+  );
+  let checkOpenRecord = () => {};
+  let disposeAssistant = () => {};
   let openerId;
   dialog.addEventListener("close", () => {
     [...main.querySelectorAll("[data-details]")]
@@ -263,6 +269,8 @@ export function renderHistoryPage(
   function openDetails(id) {
     const r = getRecords().find((record) => record.id === id);
     if (!r) return;
+    disposeAssistant();
+    const baseline = JSON.stringify(r);
     openerId = id;
     dialog.innerHTML = `<div class="panel-heading"><div><h2 id="record-dialog-title">记录详情</h2><span class="badge">${source(r)}</span></div><button class="button outlined" id="close-detail" aria-label="关闭记录详情">关闭</button></div>
     <div class="detail-identity"><h3>${esc(r.sample?.code || r.name)}</h3><p>${esc(r.name)} · ${esc(when(r.date))} · 阈值 ${Math.round(r.threshold * 100)}%</p></div>
@@ -282,6 +290,24 @@ export function renderHistoryPage(
     <section role="tabpanel" id="detail-panel-followup" aria-labelledby="detail-tab-followup" hidden><h3>复查安排</h3><p class="field-help">安排补拍或再次观察，记录处理进度与关联结果。</p>${followUpFields(r.followUp, getRecords(), r.id)}</section>
     <section role="tabpanel" id="detail-panel-ai" aria-labelledby="detail-tab-ai" hidden>${assistantMarkup()}</section></div><div class="detail-footer"><p class="error" id="detail-error" role="alert" hidden></p><div class="results-footer"><span class="detail-save-state" role="status">修改后请保存复核信息</span><button class="button outlined" id="detail-export">导出 JSON</button><button class="button primary" id="save-review">保存复核信息</button></div></div>`;
     const selectTab = attachDetailTabs(dialog);
+    dialog.querySelector(".detail-scroll").insertAdjacentHTML(
+      "afterbegin",
+      '<div id="detail-conflict" class="record-conflict" role="alert" hidden><strong>此记录已发生变化</strong><p></p><button class="button outlined" id="reload-record">重新读取此记录</button></div>',
+    );
+    checkOpenRecord = () => {
+      const latest = getRecords().find((record) => record.id === id);
+      const changed = !latest || JSON.stringify(latest) !== baseline;
+      const notice = dialog.querySelector("#detail-conflict");
+      const newlyChanged = changed && notice.hidden;
+      notice.hidden = !changed;
+      dialog.querySelector("#save-review").disabled = changed;
+      dialog.querySelector("#reload-record").hidden = !latest;
+      if (changed) notice.querySelector("p").textContent = latest
+        ? "其他标签页已更新此记录。当前填写内容仍在，可先导出 JSON；重新读取后再核对，避免覆盖新内容。"
+        : "此记录已在其他标签页删除。当前填写内容仍可导出 JSON，关闭后返回列表。";
+      if (newlyChanged) notice.scrollIntoView({ block: "nearest", behavior: "instant" });
+      return !changed;
+    };
 
     const currentDraft = () => ({
       ...r,
@@ -316,6 +342,10 @@ export function renderHistoryPage(
       if (!dirty || confirm("有未保存的修改，确定放弃吗？")) dialog.close();
     };
     dialog.querySelector("#close-detail").onclick = close;
+    dialog.querySelector("#reload-record").onclick = () => {
+      if (dirty && !confirm("重新读取会替换当前未保存的填写内容。继续吗？")) return;
+      openDetails(id);
+    };
     dialog.oncancel = (e) => {
       e.preventDefault();
       close();
@@ -333,6 +363,7 @@ export function renderHistoryPage(
       toast("已导出当前填写内容；保存复核信息后才会更新本地记录");
     };
     dialog.querySelector("#save-review").onclick = () => {
+      if (!checkOpenRecord()) return;
       let updated;
       try {
         updated = currentDraft();
@@ -351,8 +382,8 @@ export function renderHistoryPage(
       } else
         showError(new Error("保存失败，填写内容已保留。请导出报告后重试。"));
     };
-    attachAssistant(dialog, currentDraft, apiEnabled);
-    dialog.showModal();
+    disposeAssistant = attachAssistant(dialog, currentDraft, apiEnabled);
+    if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
     dialog.querySelector("#close-detail").focus({ preventScroll: true });
   }
@@ -403,14 +434,15 @@ export function renderHistoryPage(
   main.querySelector("#clear-selection").onclick = () => { selected.clear(); refresh(); main.querySelector("#select-page").focus(); };
   main.querySelector("#select-matching").onclick = () => { filtered().forEach((r) => selected.add(r.id)); refresh(); main.querySelector("#clear-selection").focus(); };
   main.querySelector("#record-sort").onchange = (event) => { order = event.target.value; page = 1; refresh(); };
-  main.querySelector("#previous-page").onclick = () => {
-    page--;
+  const changePage = (direction) => {
+    page += direction;
     refresh();
+    const table = main.querySelector("#records-table .table-scroll");
+    table?.focus({ preventScroll: true });
+    table?.scrollIntoView({ block: "start", behavior: "instant" });
   };
-  main.querySelector("#next-page").onclick = () => {
-    page++;
-    refresh();
-  };
+  main.querySelector("#previous-page").onclick = () => changePage(-1);
+  main.querySelector("#next-page").onclick = () => changePage(1);
   main.querySelector("#export-records").onclick = () => downloadCSV(actionRecords());
   main.querySelector("#compare-records").onclick = () =>
     openComparison(actionRecords());
@@ -439,6 +471,15 @@ export function renderHistoryPage(
       }),
   );
   attachBackup(main, { getRecords, persist, toast, refresh });
+  const syncRecords = () => {
+    const focused = document.activeElement?.dataset.selectRecord;
+    refresh();
+    main.querySelector("#records-update").hidden = false;
+    if (dialog.open) checkOpenRecord();
+    else if (focused) [...main.querySelectorAll("[data-select-record]")]
+      .find((input) => input.dataset.selectRecord === focused)?.focus({ preventScroll: true });
+  };
+  window.addEventListener("fieldlens:records-changed", syncRecords);
   let day = localDay();
   const timer = setInterval(() => {
     if (!main.contains(dialog)) {
@@ -453,4 +494,9 @@ export function renderHistoryPage(
   }, 30000);
   syncFilters();
   refresh();
+  return () => {
+    disposeAssistant();
+    clearInterval(timer);
+    window.removeEventListener("fieldlens:records-changed", syncRecords);
+  };
 }

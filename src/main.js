@@ -140,7 +140,7 @@ function shell() {
       <button data-view="about">${icon("info")}<span>项目说明</span></button>
     </nav>
     <a class="source-link" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">GitHub 仓库 ${icon("arrow")}</a>
-    <div class="sidebar-footer">FieldLens <span>v1.9.3</span></div>
+    <div class="sidebar-footer">FieldLens <span>v1.9.4</span></div>
   </aside>
   <div class="main-shell"><header class="topbar"><div class="breadcrumb" aria-label="当前位置"><span id="breadcrumb-group">检测管理</span><span aria-hidden="true">/</span><strong id="breadcrumb">图像检测</strong></div><div class="topbar-actions">${themeControl("ui-theme")}<button class="text-button" id="onboarding-open">操作引导</button>${demoActive ? '<span class="account-label demo-account-label">免登录演示</span>' : `<a class="account-label" href="#login">${escape(access.label())}</a>${access.user ? '<button class="text-button" id="logout">退出</button>' : '<a class="text-button" href="#login">登录</a>'}`} <span class="local-badge">${apiEnabled ? "本地运行" : "在线演示"}</span></div></header><main id="main"></main><footer class="page-footer">禾镜 FieldLens · 作物视觉巡检工作台</footer></div>
   <div id="toast" role="status" class="toast" hidden></div>`;
@@ -234,7 +234,7 @@ function render() {
   const main = document.querySelector("#main");
   if (state.view === "home") renderHome(main, { apiEnabled, enterDemo });
   else if (state.view === "workspace") renderWorkspace(main);
-  else if (state.view === "history") renderHistory(main);
+  else if (state.view === "history") disposeView = renderHistory(main);
   else if (state.view === "assistant")
     disposeView = renderHelper(main, {
       getRecords: () => state.history,
@@ -264,7 +264,7 @@ function render() {
       reset: resetDemo,
       share: shareDemo,
     });
-  else if (state.view === "login") access.renderLogin(main);
+  else if (state.view === "login") disposeView = access.renderLogin(main);
   else if (state.view === "guide") renderGuide(main);
   else renderAbout(main);
 }
@@ -894,7 +894,7 @@ function downloadReport(record) {
   downloadJSON(record);
 }
 function renderHistory(main) {
-  renderHistoryPage(main, {
+  return renderHistoryPage(main, {
     getRecords: () => state.history,
     apiEnabled,
     storageNote: demoActive
@@ -920,7 +920,7 @@ $env:FIELDLENS_MODEL = 'D:\models\crop-detect.pt'
 
 function renderAbout(main) {
   main.innerHTML = `<section class="page-heading"><div><h1>项目说明</h1><p>功能说明、运行方式与开源许可。</p></div></section>
-  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.9.3</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和可选的平台 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>首页介绍巡检流程，工作台集中处理图片、结果与记录。支持浅色、青绿、深色、暖砂及跟随系统换肤；手机可拍照、查记录和处理复查待办。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>支持单张图片或拍照检测、人工复核、记录对比和报告导出。可用巡检大屏展示进度，或通过复核助手查操作、整理记录。真实账号由管理员开通；暂不支持连续视频检测。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
+  <section class="panel about-panel"><div class="panel-heading"><h2>禾镜 FieldLens</h2><span class="badge">v1.9.4</span></div><div class="about-body"><p>作物图像检测工具，支持图片缩放、YOLO 检测、逐区域人工复核、记录对比、巡检报告和可选的平台 AI 辅助。</p><dl class="description-list"><dt>界面</dt><dd>首页介绍巡检流程，工作台集中处理图片、结果与记录。支持浅色、青绿、深色、暖砂及跟随系统换肤；手机可拍照、查记录和处理复查待办。</dd><dt>在线演示</dt><dd>示例图片和标注均为预设数据。上传自己的图片可预览，真实识别需本地运行。</dd><dt>本地检测</dt><dd>启动 Python 服务并配置授权 YOLO 目标检测权重。支持的作物和病害类别取决于模型。</dd><dt>检测记录</dt><dd>最多保留 30 条，满额后停止新增；支持备份恢复、样本批次、复查待办、搜索筛选和单条删除；只存储在当前浏览器，不保存图片、不跨设备同步。</dd><dt>当前范围</dt><dd>支持单张图片或拍照检测、人工复核、记录对比和报告导出。可用巡检大屏展示进度，或通过复核助手查操作、整理记录。真实账号由管理员开通；暂不支持连续视频检测。</dd><dt>开源许可</dt><dd>AGPL-3.0-only。依赖和模型按各自许可使用；未打包参考项目授权不明的代码、数据和权重。</dd></dl><div class="about-links"><a class="button primary" href="https://github.com/GuHang2011/fieldlens" target="_blank" rel="noopener">查看源码</a><a class="button outlined" href="https://github.com/GuHang2011/fieldlens/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noopener">部署文档</a></div></div></section>`;
 }
 
 let toastTimer;
@@ -1015,7 +1015,7 @@ window.addEventListener("fieldlens:guide-done", () =>
 );
 window.addEventListener("storage", (event) => {
   if (event.key === "fieldlens.auth.changed") location.reload();
-  if (!demoActive && event.key === access.historyKey()) {
+  if (!demoActive && (event.key === access.historyKey() || event.key === null)) {
     state.history = initialHistory();
     window.dispatchEvent(new Event("fieldlens:records-changed"));
   }
