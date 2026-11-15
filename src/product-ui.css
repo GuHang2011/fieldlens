@@ -1328,6 +1328,16 @@
   .record-update { margin: 0; padding: 12px 20px; color: var(--tone-info); background: var(--tone-info-bg); font-size: var(--type-meta); line-height: 1.7; }
   .record-conflict { margin: 0 0 16px; padding: 12px 16px; border-left: 3px solid var(--tone-warning); background: var(--tone-warning-bg); color: var(--text-primary); font-size: var(--type-meta); line-height: 1.7; }
   .record-conflict p { margin: 6px 0 10px; }
+  .review-queue-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 22px; background: var(--tone-info-bg); border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+  .review-queue-nav > div:first-child { display: grid; gap: 2px; }
+  .review-queue-nav span { font-size: 13px; color: var(--text-regular); }
+  .review-queue-nav strong { font-size: 16px; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+  .review-queue-buttons { display: flex; gap: 8px; }
+  .review-queue-buttons .button { min-height: 38px; font-size: 14px; padding: 6px 12px; }
+  #record-dialog:has(.review-queue-nav) .detail-save-state { flex-basis: 100%; }
+  #record-dialog:has(.review-queue-nav) .results-footer { flex-wrap: wrap; }
+  #record-dialog:has(.review-queue-nav) :is(#close-detail, .review-check, .dialog-label, .results-footer .button) { font-size: 14px; }
+  #record-dialog:has(.review-queue-nav) #close-detail { min-height: 38px; }
   #records-table .table-scroll:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
   #records-table .table-scroll { scroll-margin-top: 12px; }
   .record-backup-tools span { font-size: 14px; color: var(--text-regular); }
@@ -1449,6 +1459,23 @@
     #record-dialog[open] { display: block; overflow: auto; }
     #record-dialog .detail-scroll { overflow: visible; }
     #record-dialog .results-footer { position: static; }
+  }
+  @media (max-width: 650px) {
+    .review-queue-nav { padding: 8px 14px; gap: 8px; }
+    .review-queue-buttons { gap: 6px; }
+    .review-queue-buttons .button { padding: 6px 8px; min-height: 42px; white-space: nowrap; }
+    #record-dialog:has(.review-queue-nav) .detail-identity { padding-block: 8px; }
+    #record-dialog:has(.review-queue-nav) .detail-tabs { padding-inline: 4px; }
+    #record-dialog:has(.review-queue-nav) .detail-tabs button { padding-inline: 2px; font-size: 14px; white-space: nowrap; }
+    #record-dialog:has(.review-queue-nav) .results-footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #record-dialog:has(.review-queue-nav) .detail-save-state { grid-column: 1 / -1; }
+    #record-dialog:has(.review-queue-nav) #detail-export { grid-column: 1 / -1; justify-self: start; min-height: 32px; padding: 2px 0; border-color: transparent; background: transparent; }
+    #record-dialog:has(.review-queue-nav) .results-footer .button { font-size: 14px; white-space: nowrap; padding-inline: 6px; }
+  }
+  @media (max-width: 650px) and (max-height: 600px) {
+    #record-dialog[open]:has(.review-queue-nav) { display: block; overflow: auto; }
+    #record-dialog:has(.review-queue-nav) .detail-scroll { overflow: visible; }
+    #record-dialog:has(.review-queue-nav) .results-footer { position: static; }
   }
   @media (prefers-reduced-motion: reduce) {
     .button {

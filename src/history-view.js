@@ -97,8 +97,23 @@ export function renderHistoryPage(
   );
   let checkOpenRecord = () => {};
   let disposeAssistant = () => {};
+  let updateReviewNavigation = () => {};
+  let returnToQueue = false;
+  main.querySelector(".record-toolbar").insertAdjacentHTML(
+    "afterbegin",
+    '<button class="button outlined" id="start-review-queue">连续复核</button>',
+  );
+  main.querySelector("#start-review-queue").onclick = () => {
+    const ids = actionRecords().map((record) => record.id);
+    if (ids.length) openDetails(ids[0], { ids, label: selected.size ? "所选记录" : "筛选结果" });
+  };
   let openerId;
   dialog.addEventListener("close", () => {
+    if (returnToQueue) {
+      const start = main.querySelector("#start-review-queue");
+      (start.disabled ? main.querySelector("#record-query") : start).focus({ preventScroll: true });
+      return;
+    }
     [...main.querySelectorAll("[data-details]")]
       .find((button) => button.dataset.details === openerId)
       ?.focus();
@@ -196,6 +211,8 @@ export function renderHistoryPage(
     main.querySelector("#previous-page").disabled = page <= 1;
     main.querySelector("#next-page").disabled = page >= pages;
     const count = actionRecords().length;
+    main.querySelector("#start-review-queue").disabled = !count;
+    main.querySelector("#start-review-queue").textContent = selected.size ? `复核所选（${count}）` : `连续复核（${count}）`;
     main.querySelector("#export-records").disabled = !count;
     main.querySelector("#report-records").disabled = !count;
     main.querySelector("#compare-records").disabled = count < 2;
@@ -266,10 +283,11 @@ export function renderHistoryPage(
         }),
     );
   }
-  function openDetails(id) {
+  function openDetails(id, queue = null) {
     const r = getRecords().find((record) => record.id === id);
     if (!r) return;
     disposeAssistant();
+    returnToQueue = !!queue;
     const baseline = JSON.stringify(r);
     openerId = id;
     dialog.innerHTML = `<div class="panel-heading"><div><h2 id="record-dialog-title">记录详情</h2><span class="badge">${source(r)}</span></div><button class="button outlined" id="close-detail" aria-label="关闭记录详情">关闭</button></div>
@@ -290,6 +308,32 @@ export function renderHistoryPage(
     <section role="tabpanel" id="detail-panel-followup" aria-labelledby="detail-tab-followup" hidden><h3>复查安排</h3><p class="field-help">安排补拍或再次观察，记录处理进度与关联结果。</p>${followUpFields(r.followUp, getRecords(), r.id)}</section>
     <section role="tabpanel" id="detail-panel-ai" aria-labelledby="detail-tab-ai" hidden>${assistantMarkup()}</section></div><div class="detail-footer"><p class="error" id="detail-error" role="alert" hidden></p><div class="results-footer"><span class="detail-save-state" role="status">修改后请保存复核信息</span><button class="button outlined" id="detail-export">导出 JSON</button><button class="button primary" id="save-review">保存复核信息</button></div></div>`;
     const selectTab = attachDetailTabs(dialog);
+    // Freeze the starting order so saving a pending review cannot skip the next
+    // record when the current record no longer matches the list filters.
+    const neighbors = () => {
+      if (!queue) return {};
+      const index = queue.ids.indexOf(id);
+      const available = new Set(getRecords().map((record) => record.id));
+      return {
+        previous: queue.ids.slice(0, index).reverse().find((key) => available.has(key)),
+        next: queue.ids.slice(index + 1).find((key) => available.has(key)),
+      };
+    };
+    if (queue) {
+      dialog.querySelector(".detail-identity").insertAdjacentHTML("beforebegin", `<nav class="review-queue-nav" aria-label="连续复核导航"><div><span>${queue.label} · 开始时顺序</span><strong id="review-queue-progress" role="status">第 ${queue.ids.indexOf(id) + 1} / ${queue.ids.length} 条</strong></div><div class="review-queue-buttons"><button class="button outlined" id="review-previous">上一条</button><button class="button outlined" id="review-next">下一条</button></div></nav>`);
+      dialog.querySelector("#save-review").textContent = "保存并返回";
+      dialog.querySelector("#save-review").classList.replace("primary", "outlined");
+      dialog.querySelector(".results-footer").insertAdjacentHTML("beforeend", '<button class="button primary" id="save-next-review">保存并下一条</button>');
+      dialog.querySelector("#record-dialog-title").textContent = "连续复核";
+    }
+    updateReviewNavigation = () => {
+      if (!queue) return;
+      const { previous, next } = neighbors();
+      dialog.querySelector("#review-previous").disabled = !previous;
+      dialog.querySelector("#review-next").disabled = !next;
+      dialog.querySelector("#save-next-review").textContent = next ? "保存并下一条" : "保存并结束";
+    };
+    updateReviewNavigation();
     dialog.querySelector(".detail-scroll").insertAdjacentHTML(
       "afterbegin",
       '<div id="detail-conflict" class="record-conflict" role="alert" hidden><strong>此记录已发生变化</strong><p></p><button class="button outlined" id="reload-record">重新读取此记录</button></div>',
@@ -301,6 +345,8 @@ export function renderHistoryPage(
       const newlyChanged = changed && notice.hidden;
       notice.hidden = !changed;
       dialog.querySelector("#save-review").disabled = changed;
+      const saveNext = dialog.querySelector("#save-next-review");
+      if (saveNext) saveNext.disabled = changed;
       dialog.querySelector("#reload-record").hidden = !latest;
       if (changed) notice.querySelector("p").textContent = latest
         ? "其他标签页已更新此记录。当前填写内容仍在，可先导出 JSON；重新读取后再核对，避免覆盖新内容。"
@@ -342,9 +388,16 @@ export function renderHistoryPage(
       if (!dirty || confirm("有未保存的修改，确定放弃吗？")) dialog.close();
     };
     dialog.querySelector("#close-detail").onclick = close;
+    const navigateReview = (direction) => {
+      const target = neighbors()[direction];
+      if (!target || (dirty && !confirm("有未保存的修改，放弃后切换记录吗？"))) return;
+      openDetails(target, queue);
+    };
+    dialog.querySelector("#review-previous")?.addEventListener("click", () => navigateReview("previous"));
+    dialog.querySelector("#review-next")?.addEventListener("click", () => navigateReview("next"));
     dialog.querySelector("#reload-record").onclick = () => {
       if (dirty && !confirm("重新读取会替换当前未保存的填写内容。继续吗？")) return;
-      openDetails(id);
+      openDetails(id, queue);
     };
     dialog.oncancel = (e) => {
       e.preventDefault();
@@ -362,7 +415,7 @@ export function renderHistoryPage(
       }
       toast("已导出当前填写内容；保存复核信息后才会更新本地记录");
     };
-    dialog.querySelector("#save-review").onclick = () => {
+    const saveReview = (advance = false) => {
       if (!checkOpenRecord()) return;
       let updated;
       try {
@@ -376,16 +429,26 @@ export function renderHistoryPage(
           getRecords().map((record) => (record.id === id ? updated : record)),
         )
       ) {
-        dialog.close();
+        const next = advance ? neighbors().next : null;
         refresh();
-        toast("复核信息已保存");
+        if (next) {
+          openDetails(next, queue);
+          toast("已保存上一条，请继续核对当前记录");
+        } else {
+          dialog.close();
+          toast(advance ? "已保存当前记录，到达本次复核末尾" : "复核信息已保存");
+        }
       } else
         showError(new Error("保存失败，填写内容已保留。请导出报告后重试。"));
     };
+    dialog.querySelector("#save-review").onclick = () => saveReview();
+    dialog.querySelector("#save-next-review")?.addEventListener("click", () => saveReview(true));
     disposeAssistant = attachAssistant(dialog, currentDraft, apiEnabled);
     if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
-    dialog.querySelector("#close-detail").focus({ preventScroll: true });
+    const focusTarget = dialog.querySelector(queue ? "#record-dialog-title" : "#close-detail");
+    if (queue) focusTarget.tabIndex = -1;
+    focusTarget.focus({ preventScroll: true });
   }
   const filterToggle = main.querySelector("#record-filter-toggle");
   filterToggle.onclick = () => {
@@ -475,7 +538,10 @@ export function renderHistoryPage(
     const focused = document.activeElement?.dataset.selectRecord;
     refresh();
     main.querySelector("#records-update").hidden = false;
-    if (dialog.open) checkOpenRecord();
+    if (dialog.open) {
+      checkOpenRecord();
+      updateReviewNavigation();
+    }
     else if (focused) [...main.querySelectorAll("[data-select-record]")]
       .find((input) => input.dataset.selectRecord === focused)?.focus({ preventScroll: true });
   };
