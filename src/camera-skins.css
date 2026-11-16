@@ -120,6 +120,7 @@
   .skin-card {
     position: relative;
     display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 9px;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -136,22 +137,30 @@
     outline-offset: 3px;
   }
   .skin-card input {
-    position: absolute;
-    right: 12px;
-    bottom: 45px;
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    width: 16px;
+    height: 16px;
+    margin: 0;
     accent-color: var(--primary);
   }
   .skin-card strong {
+    grid-column: 1;
+    grid-row: 2;
     font-size: 14px;
     color: var(--text-primary);
-    padding-right: 24px;
   }
   .skin-card small {
+    grid-column: 1 / -1;
+    grid-row: 3;
     font-size: 12px;
     line-height: 1.7;
     color: var(--text-regular);
   }
   .skin-preview {
+    grid-column: 1 / -1;
+    grid-row: 1;
     --swatch-bg: #f0f4fa;
     --swatch-side: #fff;
     --swatch-card: #fff;
@@ -320,9 +329,6 @@
     }
     .skin-card small {
       min-height: 40px;
-    }
-    .skin-card input {
-      bottom: 63px;
     }
     .skin-footer,
     .camera-footer {

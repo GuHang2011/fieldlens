@@ -508,7 +508,7 @@
     font-size: 12px;
   }
   .onboarding-head button {
-    font-size: 12px;
+    font-size: 14px;
   }
   .guide-progress {
     display: flex;
@@ -533,7 +533,7 @@
     color: #5c6e80;
   }
   .onboarding-dialog > .button {
-    font-size: 12px;
+    font-size: 14px;
     margin: 6px 0 20px;
   }
   .onboarding-footer {

@@ -83,4 +83,32 @@ class AssistantTest(unittest.TestCase):
             with patch.dict(os.environ,{**ENV,'FIELDLENS_AI_BASE_URL':url},clear=True): self.assertFalse(CompatibleAssistant().status['configured'])
         with patch.dict(os.environ,{**ENV,'FIELDLENS_AI_BASE_URL':'http://127.0.0.1:11434/v1','FIELDLENS_AI_API_KEY':''},clear=True): self.assertTrue(CompatibleAssistant().status['configured'])
 
+    def test_large_numeric_inputs_return_validation_errors_without_provider_calls(self):
+        fake = FakeAssistant()
+        fake.generate = MagicMock(side_effect=AssertionError('Invalid data reached provider'))
+        client = create_app(assistant=fake).test_client()
+        for value in [10**400, -(10**400), float('inf'), float('-inf'), float('nan'), True]:
+            contexts = [
+                {**PAYLOAD['context'], 'threshold': value},
+                {**PAYLOAD['context'], 'detections': [{**PAYLOAD['context']['detections'][0], 'confidence': value}]},
+                {**PAYLOAD['context'], 'detections': [{**PAYLOAD['context']['detections'][0], 'box': [value, .2, .5, .6]}]},
+            ]
+            for context in contexts:
+                with self.subTest(value=str(value)[:20], context=context):
+                    result = client.post('/api/assistant', json={**PAYLOAD, 'context': context})
+                    self.assertEqual(result.status_code, 400)
+                    self.assertIsInstance(result.json['error'], str)
+        fake.generate.assert_not_called()
+
+    def test_invalid_provider_ports_are_reported_as_unconfigured(self):
+        for port in ['notaport', '99999', '-1', '0']:
+            with self.subTest(port=port), patch.dict(os.environ, {**ENV, 'FIELDLENS_AI_BASE_URL': f'https://example.invalid:{port}/v1'}, clear=True):
+                advisor = CompatibleAssistant()
+                self.assertFalse(advisor.status['configured'])
+                with self.assertRaises(AssistantError) as caught:
+                    advisor.generate(*validate_context(PAYLOAD))
+                self.assertEqual(caught.exception.status, 503)
+        with patch.dict(os.environ, {**ENV, 'FIELDLENS_AI_BASE_URL': 'https://example.invalid:8443/v1'}, clear=True):
+            self.assertTrue(CompatibleAssistant().status['configured'])
+
 if __name__=='__main__': unittest.main()

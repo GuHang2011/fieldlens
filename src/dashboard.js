@@ -103,6 +103,9 @@ export function renderDashboard(
     const expanded = main.querySelector(".trend-values")?.open;
     const refocusSummary =
       document.activeElement === main.querySelector(".trend-values summary");
+    const focusedLink = main
+      .querySelector("#screen-content a:focus")
+      ?.getAttribute("href");
     const data = summarizeRecords(getRecords(), { source, days });
     const max = Math.max(1, ...data.timeline.map((d) => d.demo + d.model));
     main.querySelector("#screen-content").innerHTML =
@@ -132,6 +135,10 @@ export function renderDashboard(
     if (refocusSummary)
       main
         .querySelector(".trend-values summary")
+        ?.focus({ preventScroll: true });
+    else if (focusedLink)
+      [...main.querySelectorAll("#screen-content a")]
+        .find((link) => link.getAttribute("href") === focusedLink)
         ?.focus({ preventScroll: true });
     main.querySelector("#screen-scope").textContent =
       `${{ all: "全部来源", model: "模型记录", demo: "演示记录" }[source]} · 近 ${days} 天 · ${{ standard: "标准视距", far: "远距投屏", hall: "超远会场" }[distance]}`;

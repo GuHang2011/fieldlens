@@ -35,7 +35,7 @@ def validate_context(payload):
     if source not in ("预设演示，非模型推理", "模型输出，尚需人工复核"):
         raise ValueError("检测来源无效")
     threshold = c.get("threshold")
-    if type(threshold) not in (int, float) or not math.isfinite(threshold) or not .1 <= threshold <= .99:
+    if type(threshold) not in (int, float) or not .1 <= threshold <= .99 or not math.isfinite(threshold):
         raise ValueError("检测阈值无效")
     detections = c.get("detections")
     if not isinstance(detections, list) or len(detections) > 300:
@@ -45,9 +45,9 @@ def validate_context(payload):
         if not isinstance(d, dict):
             raise ValueError("检测区域无效")
         confidence, box = d.get("confidence"), d.get("box")
-        if type(confidence) not in (int, float) or not math.isfinite(confidence) or not 0 <= confidence <= 1:
+        if type(confidence) not in (int, float) or not 0 <= confidence <= 1 or not math.isfinite(confidence):
             raise ValueError("置信度无效")
-        if not isinstance(box, list) or len(box) != 4 or any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 1 for v in box) or box[0] >= box[2] or box[1] >= box[3]:
+        if not isinstance(box, list) or len(box) != 4 or any(type(v) not in (int, float) or not 0 <= v <= 1 or not math.isfinite(v) for v in box) or box[0] >= box[2] or box[1] >= box[3]:
             raise ValueError("坐标无效")
         if d.get("review") not in ("待确认", "保留", "疑似误检"):
             raise ValueError("复核状态无效")
@@ -65,6 +65,10 @@ class CompatibleAssistant:
         self.valid = False
         try:
             parsed = urllib.parse.urlsplit(self.base)
+            # Accessing port validates its syntax and upper bound; zero cannot
+            # identify a provider service. Do not report invalid URLs as ready.
+            if parsed.port == 0:
+                return
             local = parsed.hostname in ("localhost", "127.0.0.1", "::1")
             self.valid = bool(parsed.hostname and (parsed.scheme == "https" or (parsed.scheme == "http" and local)) and not parsed.username and not parsed.password and not parsed.query and not parsed.fragment and (self.key or local) and self.model and len(self.model) <= 200 and "\n" not in self.key and "\r" not in self.key)
             self.host = parsed.hostname or ""

@@ -44,6 +44,8 @@ export function readSample(container, previous) {
   container.querySelectorAll("[data-sample]").forEach((input) => {
     const key = input.dataset.sample;
     if (key === "collectedAt") {
+      if (input.validity.badInput)
+        throw Error("请完整填写采集时间，或清空该字段");
       if (input.value !== localMinute(result.collectedAt)) {
         const date = input.value ? new Date(input.value) : null;
         if (date && !Number.isFinite(date.getTime()))
@@ -90,10 +92,13 @@ export function readFollowUp(container) {
   if (!container.querySelector("#followup-enabled").checked) return null;
   const reason = container.querySelector("#followup-reason").value.trim();
   if (!reason) throw Error("请填写复查原因");
+  const date = container.querySelector("#followup-date");
+  if (date.validity.badInput)
+    throw Error("请完整填写复查日期，或清空该字段");
   return normalizeFollowUp({
     reason,
     status: container.querySelector("#followup-status").value,
-    dueDate: container.querySelector("#followup-date").value,
+    dueDate: date.value,
     note: container.querySelector("#followup-note").value,
     linkedRecordId: container.querySelector("#followup-link").value,
   });

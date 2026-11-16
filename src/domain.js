@@ -356,6 +356,7 @@ export function parseBackup(text, existing) {
 }
 export function mergeBackup(existing, entries, choices) {
   const result = existing.map(normalizeRecord);
+  let addedCount = 0;
   for (const entry of entries) {
     const action = choices[entry.index];
     if (action !== "add" && action !== "replace") continue;
@@ -366,7 +367,10 @@ export function mergeBackup(existing, entries, choices) {
       throw Error("导入选项无效，请重新预览");
     const index = result.findIndex((r) => r.id === entry.record.id);
     if (action === "replace" && index >= 0) result[index] = entry.record;
-    else if (action === "add" && index < 0) result.unshift(entry.record);
+    else if (action === "add" && index < 0) {
+      result.splice(addedCount, 0, entry.record);
+      addedCount++;
+    }
     else throw Error("记录已变化，请重新导入");
   }
   if (result.length > HISTORY_LIMIT)

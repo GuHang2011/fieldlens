@@ -27,7 +27,15 @@ export function attachAssistant(
   const showPreview = () => {
     $("#ai-payload").textContent = JSON.stringify(context, null, 2);
   };
+  const clearAnswer = () => {
+    answer = null;
+    $("#ai-answer").hidden = true;
+    $("#ai-text").textContent = "";
+    $("#ai-origin").textContent = "";
+    $("#ai-export").disabled = true;
+  };
   showPreview();
+  clearAnswer();
   if (!apiEnabled) {
     $("#ai-status").textContent =
       "在线展示版不发送 AI 请求。请在本地或自部署服务中配置兼容平台。";
@@ -37,6 +45,7 @@ export function attachAssistant(
     try {
       context = assistantContext(getRecord());
       showPreview();
+      clearAnswer();
       setError("");
     } catch (e) {
       setError(e.message);
@@ -104,8 +113,7 @@ export function attachAssistant(
     const active = request;
     setError("");
     controls(true);
-    $("#ai-answer").hidden = true;
-    answer = null;
+    clearAnswer();
     try {
       const response = await apiFetch("/api/assistant", {
         method: "POST",
@@ -113,20 +121,33 @@ export function attachAssistant(
         body: JSON.stringify(snapshot),
         signal: AbortSignal.any([active.signal, AbortSignal.timeout(40000)]),
       });
-      const data = await response.json();
-      if (!response.ok) throw Error(data.error || "AI 请求失败，请稍后重试。");
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        if (error.name !== "SyntaxError") throw error;
+        throw Error("AI 服务暂时不可用，请稍后重试或联系管理员。");
+      }
+      if (!response.ok)
+        throw Error(typeof data?.error === "string" && data.error.trim()
+          ? data.error
+          : "AI 请求失败，请稍后重试。");
       if (
-        typeof data.text !== "string" ||
+        typeof data?.text !== "string" ||
         !data.text.trim() ||
         data.text.length > 12000
       )
         throw Error("平台没有返回有效文字。");
+      if (typeof data.provider !== "string" || !data.provider.trim() ||
+          typeof data.model !== "string" || !data.model.trim())
+        throw Error("平台返回信息不完整，请检查平台配置后重试。");
       if (!usable() || active.signal.aborted) return;
       answer = { ...data, snapshot, time: new Date().toLocaleString("zh-CN") };
       $("#ai-origin").textContent =
         `${data.provider} · ${data.model} · ${answer.time} · 依据发送时的预览内容，无原图`;
       $("#ai-text").textContent = data.text;
       $("#ai-answer").hidden = false;
+      $("#ai-export").disabled = false;
     } catch (e) {
       if (usable())
         setError(

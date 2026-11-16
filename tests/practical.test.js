@@ -54,6 +54,38 @@ test("backup round trip retains sample, task, review and provenance", () => {
   assert.equal(entries[0].kind, "new");
   assert.deepEqual(mergeBackup([], entries, { 0: "add" }), [original]);
 });
+test("restoring a complete backup preserves the saved record order", () => {
+  const original = ["newest", "middle", "oldest"].map((id) =>
+    normalizeRecord(record({ id })),
+  );
+  const entries = parseBackup(JSON.stringify(backupFor(original)), []);
+  const restored = mergeBackup([], entries, { 0: "add", 1: "add", 2: "add" });
+  assert.deepEqual(restored, original);
+});
+test("mixed imports prepend additions in backup order and replace existing records in place", () => {
+  const existing = ["local-first", "local-second"].map((id) =>
+    normalizeRecord(record({ id })),
+  );
+  const before = JSON.stringify(existing);
+  const entries = parseBackup(
+    JSON.stringify(backupFor([
+      record({ id: "new-first" }),
+      record({ id: "local-second", notes: "replaced" }),
+      record({ id: "skip-new" }),
+      record({ id: "new-second" }),
+      record({ id: "local-first" }),
+    ])),
+    existing,
+  );
+  const result = mergeBackup(existing, entries, {
+    0: "add", 1: "replace", 2: "skip", 3: "add",
+  });
+  assert.deepEqual(result.map((item) => item.id), [
+    "new-first", "new-second", "local-first", "local-second",
+  ]);
+  assert.equal(result[3].notes, "replaced");
+  assert.equal(JSON.stringify(existing), before);
+});
 test("import reports duplicate conflict invalid and file duplicate independently", () => {
   const data = backupFor([
     record(),
