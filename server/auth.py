@@ -135,7 +135,11 @@ def install_auth(app):
         if request.path.startswith("/api/auth/") or enabled:
             if request.method not in ("GET", "HEAD", "OPTIONS"):
                 origin = request.headers.get("Origin")
-                if (origin and urlsplit(origin).netloc != request.host) or request.headers.get("Sec-Fetch-Site") == "cross-site" or request.headers.get("X-FieldLens-Request") != "1":
+                try:
+                    foreign_origin = bool(origin and urlsplit(origin).netloc != request.host)
+                except ValueError:
+                    foreign_origin = True
+                if foreign_origin or request.headers.get("Sec-Fetch-Site") == "cross-site" or request.headers.get("X-FieldLens-Request") != "1":
                     return jsonify(error="请从同源禾镜页面发起操作"), 403
         if enabled:
             g.user = accounts.user(request.cookies.get(COOKIE))
@@ -159,6 +163,11 @@ def install_auth(app):
             return jsonify(error="请输入账号和密码"), 400
         username = data["username"].strip().lower()
         if not 1 <= len(username) <= 40 or not 1 <= len(data["password"]) <= 128:
+            return jsonify(error="账号或密码格式无效"), 400
+        try:
+            username.encode("utf-8")
+            data["password"].encode("utf-8")
+        except UnicodeEncodeError:
             return jsonify(error="账号或密码格式无效"), 400
         token, status = accounts.login(username, data["password"], request.remote_addr or "unknown")
         if status != 200:

@@ -7,12 +7,12 @@ const esc = (value) =>
       ],
   );
 
-export function apiFetch(url, options = {}) {
+export function apiFetch(url, options = {}, notifyUnauthorized = true) {
   const headers = new Headers(options.headers);
   headers.set("X-FieldLens-Request", "1");
   return fetch(url, { ...options, headers, credentials: "same-origin" }).then(
     (response) => {
-      if (response.status === 401)
+      if (response.status === 401 && notifyUnauthorized)
         window.dispatchEvent(new Event("fieldlens:login-required"));
       return response;
     },
@@ -70,11 +70,20 @@ export function createAccess(apiEnabled) {
             ? "本机工作区"
             : "演示访客";
   access.logout = async () => {
-    const response = await apiFetch("/api/auth/logout", {
-      method: "POST",
-      signal: AbortSignal.timeout(6000),
-    });
-    if (!response.ok) throw Error("退出失败，请检查服务连接后重试。");
+    try {
+      // A failed logout must keep the current page and draft available for retry.
+      const response = await apiFetch("/api/auth/logout", {
+        method: "POST",
+        signal: AbortSignal.timeout(6000),
+      }, false);
+      if (!response.ok) throw Error();
+      const data = await response.json();
+      if (data?.ok !== true) throw Error();
+    } catch (error) {
+      throw Error(error?.name === "TimeoutError"
+        ? "退出超时，请检查服务连接后重试。"
+        : "退出失败，请检查服务连接后重试。");
+    }
     notifySession();
     location.hash = "login";
     location.reload();

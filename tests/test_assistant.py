@@ -45,6 +45,16 @@ class AssistantTest(unittest.TestCase):
         self.assertEqual(client.post('/api/assistant',json=PAYLOAD,headers={'Origin':'https://attacker.invalid'}).status_code,403)
         self.assertEqual(client.post('/api/assistant',json=PAYLOAD,headers={'Origin':'http://localhost:5173'}).status_code,200)
 
+    def test_malformed_origin_is_rejected_before_provider(self):
+        fake = FakeAssistant()
+        fake.generate = MagicMock(side_effect=AssertionError('Invalid origin reached provider'))
+        with patch.dict(os.environ, {'FIELDLENS_AUTH_ENABLED':'false'}):
+            client = create_app(assistant=fake).test_client()
+        response = client.post('/api/assistant', json=PAYLOAD, headers={'Origin':'http://[invalid'})
+        self.assertEqual(response.status_code, 403)
+        self.assertIsInstance(response.json['error'], str)
+        fake.generate.assert_not_called()
+
     def test_generic_failure_never_exposes_secrets(self):
         fake=FakeAssistant()
         fake.generate=MagicMock(side_effect=RuntimeError('test-secret'))

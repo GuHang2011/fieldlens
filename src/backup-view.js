@@ -1,4 +1,4 @@
-import { backupFor, parseBackup, mergeBackup } from "./domain.js";
+import { backupFor, parseBackup, mergeBackup, BACKUP_MAX_BYTES } from "./domain.js";
 import { downloadBlob } from "./exports.js";
 import { escapeHTML as esc } from "./record-fields.js";
 
@@ -76,7 +76,7 @@ export function attachBackup(main, { getRecords, persist, toast, refresh }) {
     input.value = "";
     if (!file) return;
     try {
-      if (file.size > 5 * 1024 * 1024) throw Error("备份文件不能超过 5 MB");
+      if (file.size > BACKUP_MAX_BYTES) throw Error("备份文件不能超过 64 MiB");
       const text = await file.text();
       if (!main.contains(dialog)) return;
       const baseline = JSON.stringify(getRecords());

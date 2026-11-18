@@ -217,6 +217,9 @@ export function recordsCSV(records) {
 }
 
 export const HISTORY_LIMIT = 30;
+// Covers a full 30-record backup with 300 reviewed regions per record,
+// maximum-length text, UTF-8 encoding, JSON escaping and export indentation.
+export const BACKUP_MAX_BYTES = 64 * 1024 * 1024;
 export function localDay(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -297,8 +300,8 @@ export function backupFor(records) {
   };
 }
 export function parseBackup(text, existing) {
-  if (new TextEncoder().encode(text).length > 5 * 1024 * 1024)
-    throw Error("备份文件不能超过 5 MB");
+  if (new TextEncoder().encode(text).length > BACKUP_MAX_BYTES)
+    throw Error("备份文件不能超过 64 MiB");
   let data;
   try {
     data = JSON.parse(text.replace(/^\ufeff/, ""));

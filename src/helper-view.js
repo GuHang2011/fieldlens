@@ -158,7 +158,10 @@ export function renderHelper(main, { getRecords, apiEnabled, scopeLabel }) {
   }
   $("#helper-review").onclick = () => showResult(localReview(snapshot));
   $("#helper-overview").onclick = () => showResult(localOverview(getRecords()));
-  $("#helper-clear").onclick = clearResult;
+  $("#helper-clear").onclick = () => {
+    clearResult();
+    $(snapshot ? "#helper-review" : "#helper-overview").focus();
+  };
   $("#helper-export").onclick = () => {
     if (result)
       downloadBlob(

@@ -89,7 +89,9 @@ export function renderHistoryPage(
             : newest,
     );
   };
-  const actionRecords = () => filtered().filter((r) => !selected.size || selected.has(r.id));
+  const incompleteDates = () => ["from", "to"].some((key) => main.querySelector("#filter-" + key).validity.badInput);
+  const invalidDates = () => incompleteDates() || !!(extra.from && extra.to && extra.from > extra.to);
+  const actionRecords = () => invalidDates() ? [] : filtered().filter((r) => !selected.size || selected.has(r.id));
   const dialog = main.querySelector("#record-dialog");
   main.querySelector(".record-list-controls").insertAdjacentHTML(
     "beforebegin",
@@ -119,8 +121,18 @@ export function renderHistoryPage(
       ?.focus();
   });
   function refresh() {
-    const invalidRange = extra.from && extra.to && extra.from > extra.to;
-    main.querySelector("#filter-error").hidden = !invalidRange;
+    const invalidRange = invalidDates();
+    const filterError = main.querySelector("#filter-error");
+    filterError.hidden = !invalidRange;
+    filterError.setAttribute("role", "alert");
+    filterError.textContent = incompleteDates()
+      ? "请完整填写采集日期，或清空日期字段。当前保留上次有效范围，批量操作已暂停。"
+      : "开始日期不能晚于结束日期，请调整筛选。";
+    for (const key of ["from", "to"]) {
+      const input = main.querySelector("#filter-" + key);
+      input.setAttribute("aria-invalid", String(input.validity.badInput || invalidRange));
+      input.setAttribute("aria-describedby", "filter-error");
+    }
     for (const key of ["plot", "batch"]) {
       const select = main.querySelector("#filter-" + key);
       const values = [
@@ -220,6 +232,7 @@ export function renderHistoryPage(
     main.querySelector("#report-records").textContent = selected.size ? `生成所选报告（${count}）` : "生成巡检报告";
     main.querySelector("#compare-records").textContent = selected.size ? "对比所选记录" : "两次记录对比";
     main.querySelector("#records-scope").textContent = selected.size ? `已选 ${selected.size} 条 · 可跨页选择` : `操作范围：筛选结果 ${matches.length} 条`;
+    if (invalidRange) main.querySelector("#records-scope").textContent = "日期范围无效 · 请修正后继续批量操作";
     main.querySelector("#clear-selection").hidden = !selected.size;
     main.querySelector("#select-matching").hidden = !selected.size || selected.size === matches.length;
     const visible = matches.slice((page - 1) * pageSize, page * pageSize);
@@ -519,12 +532,16 @@ export function renderHistoryPage(
       toast("记录已清空");
     }
   };
-  for (const key of ["plot", "batch", "from", "to", "task"])
-    main.querySelector("#filter-" + key).onchange = (e) => {
-      extra[key] = e.target.value;
+  for (const key of ["plot", "batch", "from", "to", "task"]) {
+    const input = main.querySelector("#filter-" + key);
+    const update = (e) => {
+      if (!e.target.validity.badInput) extra[key] = e.target.value;
       page = 1;
       refresh();
     };
+    input.onchange = update;
+    if (key === "from" || key === "to") input.oninput = update;
+  }
   main.querySelectorAll("[data-task]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -535,15 +552,21 @@ export function renderHistoryPage(
   );
   attachBackup(main, { getRecords, persist, toast, refresh });
   const syncRecords = () => {
-    const focused = document.activeElement?.dataset.selectRecord;
+    const focused = document.activeElement;
+    const recordAction = ["selectRecord", "details", "json", "delete"]
+      .find((key) => focused?.dataset[key]);
+    const recordId = recordAction && focused.dataset[recordAction];
     refresh();
     main.querySelector("#records-update").hidden = false;
     if (dialog.open) {
       checkOpenRecord();
       updateReviewNavigation();
     }
-    else if (focused) [...main.querySelectorAll("[data-select-record]")]
-      .find((input) => input.dataset.selectRecord === focused)?.focus({ preventScroll: true });
+    else if (recordAction) {
+      const replacement = [...main.querySelectorAll("[data-select-record], [data-details], [data-json], [data-delete]")]
+        .find((control) => control.dataset[recordAction] === recordId);
+      (replacement || main.querySelector("#record-query")).focus({ preventScroll: true });
+    }
   };
   window.addEventListener("fieldlens:records-changed", syncRecords);
   let day = localDay();

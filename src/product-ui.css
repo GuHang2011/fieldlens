@@ -89,6 +89,13 @@
   textarea, button, input, select {
     font-family: inherit;
   }
+  :root[data-ui-theme] #filter-error {
+    font-size: 14px;
+    color: #a83232;
+  }
+  :root[data-ui-theme="dark"] #filter-error {
+    color: #f1c894;
+  }
   .navigation-toggle { display: none; }
   :root[data-ui-theme] .sidebar {
     width: 222px;

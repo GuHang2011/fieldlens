@@ -51,6 +51,29 @@ class AuthTest(unittest.TestCase):
         self.login()
         self.assertEqual(self.client.post('/api/assistant',json={},headers={"Origin":"http://localhost"}).status_code,403)
 
+    def test_malformed_origin_is_rejected_without_authentication_side_effects(self):
+        for route in ['/api/auth/login', '/api/auth/logout', '/api/assistant']:
+            with self.subTest(route=route):
+                response = self.client.post(route, json={"username":"inspector","password":"a-test-password-2026"}, headers={**HEADERS, 'Origin':'http://[invalid'})
+                self.assertEqual(response.status_code, 403)
+                self.assertIsInstance(response.json['error'], str)
+        with self.accounts.connect() as db:
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM attempts').fetchone()[0], 0)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM sessions').fetchone()[0], 0)
+
+    def test_invalid_unicode_credentials_rejected_before_storage_or_hashing(self):
+        for field in ['username', 'password']:
+            with self.subTest(field=field), patch('server.auth.check_password_hash', return_value=False) as check:
+                response = self.login(**{field:'\ud800'})
+                self.assertEqual(response.status_code, 400)
+                self.assertIsInstance(response.json['error'], str)
+                check.assert_not_called()
+        with self.accounts.connect() as db:
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM attempts').fetchone()[0], 0)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM sessions').fetchone()[0], 0)
+        self.accounts.set_user('unicode-user', 'a-valid-password-\u4f60\u597d')
+        self.assertEqual(self.login(username='unicode-user', password='a-valid-password-\u4f60\u597d').status_code, 200)
+
     def test_wrong_password_rate_limit_and_expiry(self):
         for _ in range(8): self.assertEqual(self.login(password='wrong-password').status_code,401)
         self.assertEqual(self.login().status_code,429)

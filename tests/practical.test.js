@@ -10,7 +10,9 @@ import {
   matchesTask,
   taskLabel,
   recordsCSV,
+  BACKUP_MAX_BYTES,
 } from "../src/domain.js";
+import { regionKeys } from "../src/review-domain.js";
 const record = (extra = {}) => ({
   id: "r1",
   name: "leaf.png",
@@ -61,6 +63,40 @@ test("restoring a complete backup preserves the saved record order", () => {
   const entries = parseBackup(JSON.stringify(backupFor(original)), []);
   const restored = mergeBackup([], entries, { 0: "add", 1: "add", 2: "add" });
   assert.deepEqual(restored, original);
+});
+test("a maximum-size legal backup remains restorable after UTF-8 encoding and JSON escaping", () => {
+  // Control characters require six JSON bytes per character. Region identities
+  // embed escaped detection labels again, making them larger than plain CJK.
+  const label = "\u0000".repeat(200);
+  const detections = Array.from({ length: 300 }, () => ({
+    label,
+    confidence: 0.12345678901234568,
+    box: [0.0000010000000000000002, 0.0000010000000000000002, 0.9999999999999999, 0.9999999999999999],
+  }));
+  const regionReviews = regionKeys(detections).map((key) => ({
+    key, status: "keep", note: "\u0000".repeat(300),
+  }));
+  const original = Array.from({ length: 30 }, (_, index) => normalizeRecord(record({
+    id: String(index).padEnd(100, "\u0000"),
+    name: "\u0000".repeat(255),
+    model: "\u0000".repeat(200),
+    notes: "\u0000".repeat(1000),
+    detections,
+    regionReviews,
+    sample: {
+      code: "\u0000".repeat(80), crop: "\u0000".repeat(80),
+      plot: "\u0000".repeat(100), batch: "\u0000".repeat(100),
+      collectedAt: "2026-11-18T01:02:03.456Z", timeSource: "user",
+    },
+    followUp: task({ reason: "\u0000".repeat(200), note: "\u0000".repeat(1000), linkedRecordId: "\u0000".repeat(100) }),
+  })));
+  const text = JSON.stringify(backupFor(original), null, 2);
+  assert.ok(Buffer.byteLength(text) > 5 * 1024 * 1024);
+  assert.ok(Buffer.byteLength(text) <= BACKUP_MAX_BYTES);
+  const entries = parseBackup(text, []);
+  assert.ok(entries.every((entry) => entry.kind === "new"));
+  const choices = Object.fromEntries(entries.map((entry) => [entry.index, "add"]));
+  assert.deepEqual(mergeBackup([], entries, choices), original);
 });
 test("mixed imports prepend additions in backup order and replace existing records in place", () => {
   const existing = ["local-first", "local-second"].map((id) =>
@@ -139,7 +175,7 @@ test("bad envelopes and invalid task dates cannot enter history", () => {
       parseBackup(JSON.stringify({ ...backupFor([]), schemaVersion: 2 }), []),
     /版本/,
   );
-  assert.throws(() => parseBackup(" ".repeat(5 * 1024 * 1024 + 1), []), /5 MB/);
+  assert.throws(() => parseBackup(" ".repeat(BACKUP_MAX_BYTES + 1), []), /64 MiB/);
   assert.throws(
     () =>
       normalizeRecord(record({ followUp: task({ dueDate: "2026-02-30" }) })),

@@ -69,7 +69,10 @@ def create_app(detector=None, assistant=None):
     def assist():
         origin = request.headers.get("Origin")
         if origin:
-            parsed = urlsplit(origin)
+            try:
+                parsed = urlsplit(origin)
+            except ValueError:
+                return jsonify(error="请从本地或同源界面发起请求"), 403
             if parsed.netloc != request.host and parsed.hostname not in ("localhost", "127.0.0.1", "::1"):
                 return jsonify(error="请从本地或同源界面发起请求"), 403
         if not request.is_json:
