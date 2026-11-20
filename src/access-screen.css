@@ -1,4 +1,31 @@
 @media screen {
+  .session-change-notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 24px 0;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .session-change-notice p {
+    flex: 1 1 240px;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .session-change-notice .button {
+    flex-shrink: 0;
+    font-size: 14px;
+    max-width: 100%;
+  }
+  @media (max-width: 600px) {
+    .session-change-notice {
+      margin: 12px 12px 0;
+      padding: 12px;
+    }
+  }
   .topbar-actions {
     display: flex;
     align-items: center;

@@ -81,6 +81,8 @@ def create_app(detector=None, assistant=None):
             return jsonify(error="记录内容过大，请缩小范围"), 413
         try:
             context, question = validate_context(request.get_json(silent=True))
+        except RecursionError:
+            return jsonify(error="记录内容嵌套过深，请检查请求格式"), 400
         except ValueError as error:
             return jsonify(error=str(error)), 400
         if not assistant_lock.acquire(blocking=False):

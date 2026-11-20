@@ -153,12 +153,36 @@ async (page) => {
     const other = await context.newPage();
     await other.goto("http://127.0.0.1:5177/");
     await other.locator("#sample-top").waitFor();
+    await other.locator("#sample-top").click();
+    await other.locator("#inspection-note").fill("另一页退出后仍需保留的真实账号草稿");
     await p.locator("#logout").click();
     await p.locator("#login-form").waitFor();
+    await other.locator(".session-change-notice").waitFor();
+    ok(
+      (await other.request.get("http://127.0.0.1:5177/api/health")).status() === 401,
+      "cross-tab logout revokes the real backend session",
+    );
+    ok(
+      (await other.locator("#inspection-note").inputValue()) === "另一页退出后仍需保留的真实账号草稿" &&
+      (await other.locator("#specimen").count()) === 1,
+      "foreign logout preserves the workspace text and image",
+    );
+    ok(
+      (await other.locator(".account-label").innerText()).includes("巡检员 A"),
+      "preserved draft keeps its original account identity",
+    );
+    other.once("dialog", (dialog) => dialog.dismiss());
+    await other.locator("[data-session-refresh]").click();
+    ok(
+      (await other.locator("#inspection-note").inputValue()) === "另一页退出后仍需保留的真实账号草稿",
+      "cancel refresh preserves the draft",
+    );
+    other.once("dialog", (dialog) => dialog.accept());
+    await other.locator("[data-session-refresh]").click();
     await other.locator("#login-form").waitFor();
     await other.close();
     ok(!errors.length, errors.join(";"));
-    return "PASS: static login guard, real backend login/logout/401, expired-session recovery, cross-tab logout, password toggle, account record separation, guide close/replay/persistence, dashboard source/range/fullscreen/empty state and 24 responsive layouts";
+    return "PASS: static login guard, real backend login/logout/401, expired-session recovery, cross-tab revocation with draft preservation and confirmed refresh, password toggle, account record separation, guide close/replay/persistence, dashboard source/range/fullscreen/empty state and 24 responsive layouts";
   } finally {
     await context.close();
   }

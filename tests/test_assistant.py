@@ -55,6 +55,23 @@ class AssistantTest(unittest.TestCase):
         self.assertIsInstance(response.json['error'], str)
         fake.generate.assert_not_called()
 
+    def test_deep_json_is_rejected_and_next_request_can_run(self):
+        fake = FakeAssistant()
+        original_generate = fake.generate
+        fake.generate = MagicMock(wraps=original_generate)
+        with patch.dict(os.environ, {'FIELDLENS_AUTH_ENABLED':'false'}):
+            client = create_app(assistant=fake).test_client()
+        body = '[' * 5000 + '0' + ']' * 5000
+        self.assertLess(len(body.encode('utf-8')), 128 * 1024)
+        response = client.post('/api/assistant', data=body, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIsInstance(response.json['error'], str)
+        self.assertNotIn('RecursionError', response.json['error'])
+        fake.generate.assert_not_called()
+        valid = client.post('/api/assistant', json=PAYLOAD)
+        self.assertEqual(valid.status_code, 200)
+        fake.generate.assert_called_once()
+
     def test_generic_failure_never_exposes_secrets(self):
         fake=FakeAssistant()
         fake.generate=MagicMock(side_effect=RuntimeError('test-secret'))

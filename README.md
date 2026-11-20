@@ -8,7 +8,7 @@
 
 拍照检测 · 界面换肤 · 区域复核 · 账号登录 · 巡检大屏 · 复核助手（可选平台 AI）
 
-[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.7) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
+[产品首页](https://guhang2011.github.io/fieldlens/?v=1.9.8) · [完整在线演示](https://guhang2011.github.io/fieldlens/?demo=1#demo) · [作品展示](https://guhang2011.github.io/cases/fieldlens/) · [界面设计](docs/PRODUCT_DESIGN.md) · [快速开始](#快速开始) · [YOLO 接入](#接入真实-yolo-检测) · [AI 平台接入](docs/AI_PLATFORM.md) · [来源与许可](docs/PROVENANCE.md)
 
 ![License](https://img.shields.io/badge/license-AGPL--3.0-526b40)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES_Modules-c4d58b)
@@ -16,9 +16,9 @@
 
 </div>
 
-[![禾镜 v1.9.5 产品首页](docs/screenshots/v1.9.5-20261115/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.7)
+[![禾镜 v1.9.5 产品首页](docs/screenshots/v1.9.5-20261115/home.webp)](https://guhang2011.github.io/fieldlens/?v=1.9.8)
 
-当前公开版本 v1.9.7；下方主界面截图摄于 v1.9.5（2026-11-15），本轮修复截图见版本说明。下方业务截图使用预置演示案例；点击图片可查看原图。
+当前公开版本 v1.9.8；下方主界面截图摄于 v1.9.5（2026-11-15），本轮修复截图见版本说明。下方业务截图使用预置演示案例；点击图片可查看原图。
 
 <details>
 <summary>查看检测工作台、记录管理与复核助手</summary>
@@ -48,6 +48,8 @@
 禾镜 FieldLens 将图片、检测框、置信度与巡检记录组织在同一个工作台中，为作物叶片的辅助筛查提供可复核的视觉界面。它适合计算机视觉课程展示、农业视觉原型验证和个人项目作品集。
 
 本项目参考提供的作物病害检测项目的**业务场景**，重新实现前端与图片推理接口。v1.9.0 采用农业场景首页与简洁的业务布局，统一字号、表格、表单及多色状态。正文 16px、主要操作与表格 15px、辅助文字 14px，保留浅色、青绿、深色与暖砂主题。宽屏显示图片、参数、结果三列；手机记录采用卡片，详情分为区域复核、样本信息、复查安排和 AI 辅助四个标签，保存区固定显示，横屏等矮视口改为弹窗整体滚动。样式独立实现，没有引入组件库。参考与验证见 [界面设计](docs/PRODUCT_DESIGN.md)。
+
+v1.9.8 修复服务状态刷新导致表单输入丢失、演示助手入口、引导焦点及多行区域说明保存问题；账号在其他标签页变化时保留当前内容，暂停请求并提示刷新。补充异常服务响应和 AI 请求校验。详见 [本轮检查与修复](docs/RELEASE_1.9.8.md)。
 
 v1.9.7 完善模型来源记录、检测异常提示、大备份恢复、日期筛选范围、退出登录及键盘焦点；补充 AI 超时边界和依赖通告核实结果。详见 [本轮问题与修复](docs/RELEASE_1.9.7.md)。
 

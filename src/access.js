@@ -7,11 +7,20 @@ const esc = (value) =>
       ],
   );
 
+const SESSION_CHANGED_MESSAGE = "账号状态已在其他页面改变，请先导出未保存内容，再刷新确认账号。";
+const sessionRequests = new AbortController();
+
 export function apiFetch(url, options = {}, notifyUnauthorized = true) {
+  if (sessionRequests.signal.aborted)
+    return Promise.reject(sessionRequests.signal.reason);
   const headers = new Headers(options.headers);
   headers.set("X-FieldLens-Request", "1");
-  return fetch(url, { ...options, headers, credentials: "same-origin" }).then(
+  const signal = options.signal
+    ? AbortSignal.any([options.signal, sessionRequests.signal])
+    : sessionRequests.signal;
+  return fetch(url, { ...options, signal, headers, credentials: "same-origin" }).then(
     (response) => {
+      if (sessionRequests.signal.aborted) throw sessionRequests.signal.reason;
       if (response.status === 401 && notifyUnauthorized)
         window.dispatchEvent(new Event("fieldlens:login-required"));
       return response;
@@ -25,6 +34,7 @@ export function createAccess(apiEnabled) {
     user: null,
     unavailable: false,
     expired: false,
+    sessionChanged: false,
   };
   const notifySession = () => {
     try {
@@ -39,6 +49,7 @@ export function createAccess(apiEnabled) {
       });
       if (!response.ok) throw Error();
       const data = await response.json();
+      if (access.sessionChanged) return;
       if (typeof data.enabled !== "boolean") throw Error();
       access.enabled = data.enabled;
       access.user =
@@ -57,7 +68,27 @@ export function createAccess(apiEnabled) {
       : "fieldlens.history";
   access.storage = {
     getItem: () => localStorage.getItem(access.historyKey()),
-    setItem: (_key, value) => localStorage.setItem(access.historyKey(), value),
+    setItem: (_key, value) => {
+      if (access.sessionChanged) throw Error(SESSION_CHANGED_MESSAGE);
+      localStorage.setItem(access.historyKey(), value);
+    },
+  };
+  access.invalidateSession = () => {
+    if (!apiEnabled || access.sessionChanged) return;
+    access.sessionChanged = true;
+    access.expired = true;
+    sessionRequests.abort(Error(SESSION_CHANGED_MESSAGE));
+  };
+  access.renderSessionNotice = (container) => {
+    if (!access.sessionChanged || !container || container.querySelector(".session-change-notice")) return;
+    const notice = document.createElement("aside");
+    notice.className = "capability-banner session-change-notice";
+    notice.setAttribute("role", "alert");
+    notice.innerHTML = '<p>账号状态已在其他页面改变，当前内容已保留。请先导出未保存内容，再刷新确认账号。</p><button type="button" class="button outlined" data-session-refresh>刷新确认账号</button>';
+    notice.querySelector("[data-session-refresh]").onclick = () => {
+      if (confirm("刷新将丢弃当前页面未保存的输入。确认已导出需要保留的内容并刷新？")) location.reload();
+    };
+    container.prepend(notice);
   };
   access.label = () =>
     access.user

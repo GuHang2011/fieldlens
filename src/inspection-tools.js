@@ -31,7 +31,7 @@ export function regionEditor(record) {
           )
           .join(
             "",
-          )}</select><input data-region-note="${i}" aria-label="区域 ${i + 1} 复核说明" maxlength="300" placeholder="复核说明（可选）" value="${esc(review?.note || "")}"/></td></tr>`;
+          )}</select><textarea data-region-note="${i}" aria-label="区域 ${i + 1} 复核说明" rows="2" maxlength="300" placeholder="复核说明（可选）">${esc(review?.note || "")}</textarea></td></tr>`;
       })
       .join("") ||
     '<tr><td colspan="3">该阈值下没有检测区域，可在下方填写整图复核备注或安排补拍。</td></tr>'

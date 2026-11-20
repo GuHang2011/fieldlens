@@ -60,7 +60,10 @@ export function createOnboarding({ navigate }) {
     dialog?.close();
     dialog?.remove();
     dialog = null;
-    returnFocus?.isConnected && returnFocus.focus();
+    const target = returnFocus?.isConnected
+      ? returnFocus
+      : document.querySelector("#onboarding-open");
+    target?.focus();
   }
   function paint() {
     const step = steps[index];
@@ -78,8 +81,8 @@ export function createOnboarding({ navigate }) {
         try {
           localStorage.setItem(key, "done");
         } catch {}
-        close();
         window.dispatchEvent(new Event("fieldlens:guide-done"));
+        close();
       } else {
         index++;
         paint();

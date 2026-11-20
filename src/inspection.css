@@ -36,7 +36,7 @@
 .region-review td:last-child {
   min-width: 200px;
 }
-.region-review input,
+.region-review textarea,
 .report-controls input {
   width: 100%;
   height: 40px;
@@ -46,10 +46,17 @@
   padding: 8px;
   margin-top: 8px;
 }
+.region-review textarea {
+  height: auto;
+  min-height: 72px;
+  min-width: 0;
+  line-height: 1.5;
+  resize: vertical;
+}
 .region-review {
   margin-top: 24px;
 }
-.region-review input:focus,
+.region-review textarea:focus,
 .report-controls input:focus {
   outline: 1px solid var(--primary);
 }
